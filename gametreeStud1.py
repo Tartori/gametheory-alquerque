@@ -103,6 +103,38 @@ class Gamestate:
     def getStateHistory(self):
         raise NotImplementedError("Not implemented")
 
+    def printGameState(self):
+        """
+        3x3 field:
+        +-+-+
+        |\|/|
+        +-+-+
+        |/|\|
+        +-+-+
+        general:
+        if (x+y)%2==1:
+            "
+                +-+
+                |/|
+                +-+
+            "
+        else:
+            "
+                +-+
+                |\|
+                +-+
+            "
+
+        one player -> x
+        sec player -> o
+        example start:
+        x-x-x
+        |\|/|
+        x-+-o
+        |/|\|
+        o-o-o
+        """
+
 
 class Evaluator:
 
