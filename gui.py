@@ -2,6 +2,7 @@
 
 from pip._vendor.colorama import init, Fore, Style
 import re
+import os
 
 # for demo state only!!!
 demoboard = [
@@ -12,20 +13,29 @@ demoboard = [
         [1, 1, 1, 1, 1],
     ]
 
-def printScreen(positions):
+demohistory = [
+        "E0 to B4",
+        "something",
+        "K5 to W22             "
+    ]
+
+clear = lambda: os.system('cls' if os.name=='nt' else 'clear')
+
+def printScreen(positions, history, instruction):
     """"""
     init()
-    lines = assembleComponents(positions)
+    clear()
+    lines = assembleComponents(positions, history, instruction)
     for line in lines:
         print(line)
     return
 
-def assembleComponents(positions):
+def assembleComponents(positions, history, instruction):
     layout = [
         ""
     ]
     screen = []
-    padding = 1
+    padding = 20
     initialpadding = 0
     while initialpadding < padding:
         screen.append("")
@@ -33,8 +43,9 @@ def assembleComponents(positions):
     renderInto(screen, 150, padding + 20, [], 0, 0, 0, 0)
     # insert from top to bottom and from right to left, because of escaped chars counting problems!
     renderInto(screen, 150, padding + 20, prepareTitle(), padding + 0, 0, 40, 5)
-    renderInto(screen, 150, padding + 20, prepareHistory(), padding + 6, 40, 40, 15)
+    renderInto(screen, 150, padding + 20, prepareHistory(history), padding + 6, 40, 40, 15)
     renderInto(screen, 150, padding + 20, prepareBoard(positions), padding + 6, 0, 40, 15)
+    renderInto(screen, 150, padding + 20, prepareInstruction(instruction), padding + 19, 0, 40, 1)
     return screen
 
 def prepareTitle():
@@ -77,15 +88,18 @@ def prepareCell(value):
     return options.get(value, "?")
 
 
-def prepareHistory():
+def prepareHistory(steps):
     """Returns some lines containing the game history."""
-    return [
+    history = [
         "HISTORY:",
         "----------------",
-        "E0 to B4",
-        "something",
-        "K5 to W22             "
     ]
+    history.extend(steps)
+    return history
+
+def prepareInstruction(instruction):
+    result = Fore.YELLOW + instruction + Fore.RESET
+    return [result]
 
 def renderInto(whole, wwidth, wheight, part, ptop, pleft, pwidth, pheight):
     """Define the size of a canvas to be rendered and place some lines of content at a specific position."""
