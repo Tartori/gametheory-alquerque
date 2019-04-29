@@ -6,10 +6,11 @@ from gui import *
 from input import *
 
 def run():
+    """Starts the game loop."""
     board = demoboard
-    history = demohistory
+    history = []
 
-    currentOptions = {"stop": "stops app", "me": "if you want to start the game", "you": "if i shall start the game"}
+    currentOptions = {"stop": "stops app", "me": "if you want to start the game", "you": "if i shall start the game", }
     currentInstruction = getInstructions("Hi!", currentOptions)
     currentInput = ""
     printScreen(board, history, currentInstruction)
@@ -32,11 +33,5 @@ def run():
             currentInstruction = getInstructions("Bad input!", currentOptions)
         finally:
             printScreen(board, history, currentInstruction)
-
-def addCommandToVisibleCommandHistory(history, command):
-    if(len(history) > 3):
-        history.pop(0)
-    history.append(command)
-    return history
 
 run()

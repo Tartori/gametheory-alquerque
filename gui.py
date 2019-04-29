@@ -3,6 +3,7 @@
 from pip._vendor.colorama import init, Fore, Style
 import re
 import os
+from definitions import *
 
 # for demo state only!!!
 demoboard = [
@@ -13,16 +14,12 @@ demoboard = [
         [1, 1, 1, 1, 1],
     ]
 
-demohistory = [
-        "E0 to B4",
-        "something",
-        "K5 to W22             "
-    ]
 
 clear = lambda: os.system('cls' if os.name=='nt' else 'clear')
 
+
 def printScreen(positions, history, instruction):
-    """"""
+    """Renders one screen to the console."""
     init()
     clear()
     lines = assembleComponents(positions, history, instruction)
@@ -30,7 +27,9 @@ def printScreen(positions, history, instruction):
         print(line)
     return
 
+
 def assembleComponents(positions, history, instruction):
+    """For one screen to be rendered, combines all components based on the given data."""
     layout = [
         ""
     ]
@@ -48,6 +47,7 @@ def assembleComponents(positions, history, instruction):
     renderInto(screen, 150, padding + 20, prepareInstruction(instruction), padding + 19, 0, 40, 1)
     return screen
 
+
 def prepareTitle():
     """Shows the game title. Returns a list of lines to be rendered."""
     title = [
@@ -58,6 +58,7 @@ def prepareTitle():
         "          |_|             |_|   " + Fore.LIGHTBLACK_EX + "by Julian Stampfli and Marc Rey 2019" + Fore.RESET,
     ]
     return title
+
 
 def prepareBoard(positions):
     """Shows the Alquerque/Checkers board. Returns a list of lines to be rendered."""
@@ -76,14 +77,18 @@ def prepareBoard(positions):
         board.append(rowSeparator)
     return board
 
+
 def getRowLabel(rowindex):
+    """Returns the letter (A-E) for the desired row."""
     return chr(rowindex + 97).upper()
 
+
 def prepareCell(value):
+    """Returns the coin in the color of the respective player."""
     options = {
-        - 1: Fore.RED + "■" + Fore.RESET,
+        PLAYER2: getPlayersColor(PLAYER2) + "■" + Fore.RESET,
         0: " ",
-        1: Fore.CYAN + "■" + Fore.RESET
+        PLAYER1: getPlayersColor(PLAYER1) + "■" + Fore.RESET
     }
     return options.get(value, "?")
 
@@ -98,8 +103,10 @@ def prepareHistory(steps):
     return history
 
 def prepareInstruction(instruction):
+    """Returns an instruction to the user formatted."""
     result = Fore.YELLOW + instruction + Fore.RESET
     return [result]
+
 
 def renderInto(whole, wwidth, wheight, part, ptop, pleft, pwidth, pheight):
     """Define the size of a canvas to be rendered and place some lines of content at a specific position."""
@@ -134,8 +141,29 @@ def escape_ansi(line):
     ansi_escape =re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
     return ansi_escape.sub('', line)
 
+
 def insertIntoString(fullString, newPart, startingAt):
+    """Insert a string into another string starting at a specific index. Takes into account that there might be esc chars."""
     prefix = fullString[:startingAt]
     postfix = fullString[(startingAt + len(escape_ansi(newPart))) :]
     newString = "".join([prefix, newPart, postfix])
     return newString
+
+
+def addCommandToVisibleCommandHistory(history, command):
+    """Adds the last user input to the cli-rendered history of commands."""
+    if(len(history) > 3):
+        history.pop(0)
+    history.append(command)
+    return history
+
+
+def getPlayersColor(player):
+    """Returns the color for PLAYER1 and PLAYER2."""
+    print(player)
+    if not (player == PLAYER1 or player == PLAYER2):
+        raise "Player does not exist"
+    if player == PLAYER1:
+        return Fore.BLUE
+    if player == PLAYER2:
+        return Fore.RED
