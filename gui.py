@@ -55,7 +55,7 @@ def prepareTitle():
         "|  _  | |___ _ _ ___ ___ ___ _ _ ___ ",
         "|     | | . | | | -_|  _| . | | | -_|",
         "|__|__|_|_  |___|___|_| |_  |___|___|",
-        "          |_|             |_|        ",
+        "          |_|             |_|   " + Fore.LIGHTBLACK_EX + "by Julian Stampfli and Marc Rey 2019" + Fore.RESET,
     ]
     return title
 
