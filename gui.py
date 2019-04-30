@@ -5,15 +5,6 @@ import re
 import os
 from definitions import *
 
-# for demo state only!!!
-demoboard = [
-        [-1, -1, -1, -1, -1],
-        [-1, -1, -1, -1, -1],
-        [-1, -1, 0, 1, 1],
-        [1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1],
-    ]
-
 
 clear = lambda: os.system('cls' if os.name=='nt' else 'clear')
 
@@ -30,9 +21,6 @@ def printScreen(positions, history, instruction):
 
 def assembleComponents(positions, history, instruction):
     """For one screen to be rendered, combines all components based on the given data."""
-    layout = [
-        ""
-    ]
     screen = []
     padding = 20
     initialpadding = 0
@@ -41,10 +29,12 @@ def assembleComponents(positions, history, instruction):
         initialpadding = initialpadding + 1
     renderInto(screen, 150, padding + 20, [], 0, 0, 0, 0)
     # insert from top to bottom and from right to left, because of escaped chars counting problems!
-    renderInto(screen, 150, padding + 20, prepareTitle(), padding + 0, 0, 40, 5)
-    renderInto(screen, 150, padding + 20, prepareHistory(history), padding + 6, 40, 40, 15)
-    renderInto(screen, 150, padding + 20, prepareBoard(positions), padding + 6, 0, 40, 15)
-    renderInto(screen, 150, padding + 20, prepareInstruction(instruction), padding + 19, 0, 40, 1)
+    wheight = padding + 27
+    wwidth = 150
+    renderInto(screen, wwidth, wheight, prepareTitle(), padding + 0, 0, 40, 5)
+    renderInto(screen, wwidth, wheight, prepareHistory(history), padding + 6, 40, 40, 6)
+    renderInto(screen, wwidth, wheight, prepareBord(positions), padding + 6, 0, 40, 18)
+    renderInto(screen, wwidth, wheight, prepareInstruction(instruction), padding + 25, 0, 40, 1)
     return screen
 
 
@@ -60,22 +50,26 @@ def prepareTitle():
     return title
 
 
-def prepareBoard(positions):
-    """Shows the Alquerque/Checkers board. Returns a list of lines to be rendered."""
-    colLabels    = "     0   1   2   3   4"
-    rowSeparator = "   +---+---+---+---+---+"
-    board = []
-    board.append(colLabels)
-    board.append(rowSeparator)
-    for rowindex in range(0, 5):
+def prepareBord(positions):
+    """Shows the bord. Returns a list of lines to be rendered."""
+    size = len(positions)
+    colLabels       = "    "
+    rowSeparator    = "   +"
+    for colindex in range(0, size):
+        colLabels += " " + str(colindex) + "  "
+        rowSeparator += "---+"
+    bord = []
+    bord.append(colLabels)
+    bord.append(rowSeparator)
+    for rowindex in range(0, size):
         cells = []
         cells.append(getRowLabel(rowindex)) # one char in length
-        for cellindex in range(0, 5):
+        for cellindex in range(0, size):
             cells.append(prepareCell(positions[rowindex][cellindex])) # one char in length
         row = (" " + ' ¦ '.join(['%s']*len(cells)) + " ¦") % tuple(cells)
-        board.append(row)
-        board.append(rowSeparator)
-    return board
+        bord.append(row)
+        bord.append(rowSeparator)
+    return bord
 
 
 def getRowLabel(rowindex):
@@ -162,8 +156,17 @@ def getPlayersColor(player):
     """Returns the color for PLAYER1 and PLAYER2."""
     print(player)
     if not (player == PLAYER1 or player == PLAYER2):
-        raise "Player does not exist"
+        raise Exception("Player does not exist")
     if player == PLAYER1:
         return Fore.BLUE
     if player == PLAYER2:
         return Fore.RED
+
+def mapFieldCoordinatesToText(field):
+    return getRowLabel(field[0]) + str(field[1])
+
+def mapFieldsCoordinatesToText(fields):
+    result = []
+    for field in fields:
+        result.append(mapFieldCoordinatesToText(field))
+    return result

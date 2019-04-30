@@ -2,7 +2,9 @@
 
 An implementation of the alerquerque game in Python with an opponent that tries to play optimally. Written during a course on game theory in the BFH.
 
-Rules from <https://www.mastersofgames.com/rules/alquerque-rules.htm>
+## Bauernschach
+
+Beim Bauernschach sind auf dem Brett jeweils acht Bauern je Spieler vorhanden. Das Ziel ist es, mit einem Bauern die letzte Reihe (Grundreihe) des Gegners zu erreichen. Die Bauern können hierbei die im Schach gültigen Züge machen (Ziehen und Schlagen). Erreicht ein Bauer die gegnerische Grundreihe, gewinnt dieser Spieler sofort, eine Umwandlung des Bauern wie beim Schach unterbleibt. Anfänger können mit vier Bauern üben, und auch auf das Schlagen en passant kann anfangs verzichtet werden.
 
 ## Original version of Checkers (according to Mr. Eckerle)
 
@@ -22,9 +24,11 @@ W    W    W    W    W
 
 Für die Bewertung der Horizontknoten kann statt einer heuristischen Bewertungsfunktion auch ein Monte-Carlo-Test zum Einsatz kommen. Siehe folgenden Artikel:
 
-Implementationsvorschlag: Querkle.
+
 
 ## Alquerque based on the Alfonso Manuscript
+
+Rules from <https://www.mastersofgames.com/rules/alquerque-rules.htm>
 
 ### Equipment
 

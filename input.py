@@ -16,15 +16,27 @@ def getInstructions(prefix, options = {}):
             instruction = instruction + "  [" + key + "]: " + value
     return instruction
 
-def getInput(options):
-    command = sys.stdin.readline()
-    cleaned = command.replace("\n", "")
-    if not cleaned in options.keys():
-        raise "Invalid input. "
-    return cleaned
 
 def isBordField(input):
     if len(input) == 2:
+        p = re.compile('[A-Ea-e][0-4]')
+        if p.match(input) is not None:
+            return True
+    return False
+
+def mapFieldTextToCoordinates(field):
+    """
+    Converts a string of two chars to coordinates.
+    field: e.g. "A2" or "a2".
+    return: e.g. (0, 2).
+    """
+    if not len(field) == 2:
+        "Field must be specified by two chars."
+    row = ord(field[0].upper()) - 97
+    return (row, field[1])
+
+def isAlquerque(input):
+    if len(input) == 1:
         p = re.compile('[A-Ea-e][0-4]')
         if p.match(input) is not None:
             return True
