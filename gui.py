@@ -81,10 +81,10 @@ def getRowLabel(rowindex):
 def prepareCell(value):
     """Returns the coin in the color of the respective player."""
     options = {
-        PLAYER_OPP: getPlayersColor(PLAYER_OPP) + "■" + Fore.RESET,
+        PLAYER_OPP: "x",
         0: " ",
-        PLAYER_USER: getPlayersColor(PLAYER_USER) + "■" + Fore.RESET,
-        POSSIBLE_MOVE: getMoveColor() + "■" + Fore.RESET,
+        PLAYER_USER: "o",
+        POSSIBLE_MOVE: "?",
     }
     return options.get(value, "?")
 
@@ -101,7 +101,7 @@ def prepareHistory(steps):
 
 def prepareInstruction(instruction):
     """Returns an instruction to the user formatted."""
-    result = Fore.YELLOW + instruction + Fore.RESET
+    result = instruction
     return [result]
 
 

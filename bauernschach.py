@@ -6,6 +6,7 @@ from copy import deepcopy
 class Bauernschach:
 
     gamestate = []
+    # TODO: variable size!!
     initialGamestate = [
         [0, 0, 0, 0, 0, 0, 0, 0],
         [PLAYER_OPP] * 8,
@@ -28,7 +29,6 @@ class Bauernschach:
         self.moveHistory = []
         self.gamestateHistory = []
         self.setStartState()
-        self.findAllMoves()
 
     def toNextTurn(self):
         self.currentPlayer *= -1
@@ -39,6 +39,7 @@ class Bauernschach:
         self.gamestate = deepcopy(self.initialGamestate)
         return
 
+    # TODO: merge to init game.
     def setFirstPlayer(self, player):
         self.currentPlayer = player
 
@@ -136,8 +137,13 @@ class Bauernschach:
         move: (i, j) where i is rowindex and j is colindex referencing the field where the pawn wants to move to.
         return: bool.
         """
-        isFirstMovementForPiece = pawn[0] == 2 or pawn == len(self.gamestate) - 2
-        return self.fieldOnBord(move) and not self.fieldOccupied((self.getBack(move[0]), move[1])) and not self.fieldOccupied(move)
+        isFirstMovementForPiece = False
+        if self.currentPlayer == PLAYER_USER:
+            isFirstMovementForPiece = pawn[0] == len(self.gamestate) - 2
+        if self.currentPlayer == PLAYER_OPP:
+            isFirstMovementForPiece = pawn[0] == 1
+        bothFieldsFree = not self.fieldOccupied((self.getBack(move[0]), move[1])) and not self.fieldOccupied(move)
+        return self.fieldOnBord(move) and isFirstMovementForPiece and bothFieldsFree
 
     def canMoveLeft(self, pawn, move):
         """
@@ -200,24 +206,6 @@ class Bauernschach:
             self.gamestate[move[0]][move[1]] = self.currentPlayer
 
     def undoMove(self, mv):
-        raise NotImplementedError("You should have implemented this")
-
-    def getAllChildStates(self):
-        raise NotImplementedError("You should have implemented this")
-
-    def hasNextChild(self):
-        raise NotImplementedError("You should have implemented this")
-
-    def getNextChild(self):
-        raise NotImplementedError("You should have implemented this")
-
-    def getChild(self, mv):
-        raise NotImplementedError("You should have implemented this")
-
-    def firstPlayerToMove(self):
-        raise NotImplementedError("You should have implemented this")
-
-    def secondPlayerToMove(self):
         raise NotImplementedError("You should have implemented this")
 
     def isTerminal(self):

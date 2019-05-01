@@ -1,5 +1,8 @@
 #!/usr/bin/python3
 
+# TODO: snake case.
+# TODO: do not import *. do "import ..." instead of "from ... import ..."
+
 import sys
 import re
 
@@ -11,17 +14,14 @@ from alquerque import *
 ALQUERQUE = 0
 BAUERNSCHACH = 1
 
+# TODO: make Enum!
 STATE_CHOOSE_GAME = 0
 STATE_CHOOSE_PLAYER_ORDER = 1
 STATE_CHOOSE_PAWN = 2
 STATE_CHOOSE_MOVE = 3
-STATE_PLAYER1_CHOOSE_PAWN = 11
-STATE_PLAYER1_CHOOSE_MOVE = 12
-STATE_PLAYER2_CHOOSE_PAWN = 21
-STATE_PLAYER2_CHOOSE_MOVE = 22
+STATE_SWITCH_TURN = 4
+STATE_WIN = 5
 STATE_BYE = -1
-STATE_WIN = 4
-STATE_SWITCH_TURN = 5
 
 CMD_QUIT_APP = "STOP"
 CMD_CHOOSE_GAME_ALQUERQUE = "A"
@@ -70,7 +70,7 @@ class App:
                     self.doStepChooseGame()
                     continue
                 elif self.loopState == STATE_CHOOSE_PLAYER_ORDER:
-                    self.doStepChoosePlayerOrder()
+                    self.do_step_choose_player_order()
                     continue
                 elif self.loopState == STATE_CHOOSE_PAWN:
                     self.doStepChoosePawn()
@@ -88,13 +88,21 @@ class App:
                 pass
 
     def doStepChooseGame(self):
-        options = {
-            CMD_QUIT_APP: "stops app",
-            CMD_CHOOSE_GAME_ALQUERQUE: "play Alquerque",
-            CMD_CHOOSE_GAME_BAUERNSCHACH: "play Bauernschach",
-        }
+        params = ScreenParameters(
+            bord=[],
+            moveHistory=[],
+            currentPlayer=None,
+            feedback=self.consumeFeedback(),
+            question="Hi! Which game would you like to play?",
+            options=deepcopy(self.sharedOptions)
+        )
+        params.options.update({
+                CMD_CHOOSE_GAME_ALQUERQUE: "play Alquerque",
+                CMD_CHOOSE_GAME_BAUERNSCHACH: "play Bauernschach",
+            })
+
         prefix = self.prependFeedback("Hi! Which game would you like to play?")
-        printScreen([], [], getInstructions(prefix, options))
+        printScreen([], [], getInstructions(prefix, params.options))
 
         input = self.readInput()
 
@@ -122,7 +130,14 @@ class App:
     def prependFeedback(self, prefix):
         if not self.feedback is None and len(self.feedback) > 0:
             prefix = self.feedback + " " + prefix
+            self.feedback = None
         return prefix
+
+    def consumeFeedback(self):
+        if not self.feedback is None:
+            return self.feedback
+            self.feedback = None
+        return None
 
     def readInput(self):
         """
@@ -135,14 +150,21 @@ class App:
         except:
             return ""
 
-    def doStepChoosePlayerOrder(self):
-        options = {
-            CMD_QUIT_APP: "stops app",
-            CMD_CHOOSE_FIRST_PLAYER_ME: "if you want to start as first player",
-            CMD_CHOOSE_FIRST_PLAYER_OPPONENT: "if opponent shall start as first player",
-        }
+    def do_step_choose_player_order(self):
+        params = ScreenParameters(
+            bord=[],
+            moveHistory=[],
+            currentPlayer=None,
+            feedback=self.consumeFeedback(),
+            question="Hi! Which game would you like to play?",
+            options=deepcopy(self.sharedOptions)
+        )
+        params.options.update({
+                CMD_CHOOSE_FIRST_PLAYER_ME: "if you want to start",
+                CMD_CHOOSE_FIRST_PLAYER_OPPONENT: "if opponent shall start",
+            })
         prefix = self.prependFeedback("Which player shall start first?")
-        printScreen([], [], getInstructions(prefix, options))
+        printScreen([], [], getInstructions(prefix, params.options))
 
         input = self.readInput()
 
@@ -170,12 +192,17 @@ class App:
             return
 
     def doStepChoosePawn(self):
-        options = deepcopy(self.sharedOptions)
-        pawns = mapFieldsCoordinatesToText(self.game.getMovablePawns())
-        for pawn in pawns:
-            options[pawn] = "Pawn " + pawn + " "
+        params = ScreenParameters(
+            bord=self.game.getBord(),
+            moveHistory=self.game.getMoveHistory(),
+            currentPlayer=None,
+            feedback=self.consumeFeedback(),
+            question="Hi! Which game would you like to play?",
+            options=deepcopy(self.sharedOptions)
+        )
+        params.options.update(self.getChoosableFieldsAsOptions(self.game.getMovablePawns()))
         prefix = self.prependFeedback("Which pawn do you want to move? ")
-        printScreen(self.game.gamestate, self.game.getMoveHistory(), getInstructions(prefix, options))
+        printScreen(self.game.gamestate, self.game.getMoveHistory(), getInstructions(prefix, params.options))
 
         input = self.readInput()
 
@@ -184,7 +211,7 @@ class App:
             self.loopState = STATE_BYE
             return
 
-        elif input in pawns:
+        elif input in params.options:
             self.selectedPawn = input
             self.loopState = STATE_CHOOSE_MOVE
             self.feedback = "You want to move pawn " + input + ". "
@@ -195,13 +222,18 @@ class App:
             return
 
     def doStepChooseMove(self):
-        options = deepcopy(self.sharedOptions)
+        params = ScreenParameters(
+            bord=self.game.getBord(),
+            moveHistory=self.game.getMoveHistory(),
+            currentPlayer=None,
+            feedback=self.consumeFeedback(),
+            question="Hi! Which game would you like to play?",
+            options=deepcopy(self.sharedOptions)
+        )
         pawnField = mapFieldTextToCoordinates(self.selectedPawn)
-        moves = mapFieldsCoordinatesToText(self.game.getMovesForPawn(pawnField))
-        for move in moves:
-            options[move] = "Move " + self.selectedPawn + " to " + move + " "
+        params.options.update(self.getChoosableFieldsAsOptions(self.game.getMovesForPawn(pawnField)))
         prefix = self.prependFeedback("Where would you like to move the pawn?")
-        printScreen(self.game.getBordWithMoves(pawnField), self.game.getMoveHistory(), getInstructions(prefix, options))
+        printScreen(self.game.getBordWithMoves(pawnField), self.game.getMoveHistory(), getInstructions(prefix, params.options))
 
         input = self.readInput()
 
@@ -210,7 +242,7 @@ class App:
             self.loopState = STATE_BYE
             return
 
-        elif input in moves:
+        elif input in params.options:
             self.selectedMove = input
             pawn = mapFieldTextToCoordinates(self.selectedPawn)
             move = mapFieldTextToCoordinates(input)
@@ -248,6 +280,13 @@ class App:
             return "Your turn! "
         else:
             return "Opp's turn! "
+
+    def getChoosableFieldsAsOptions(self, fields):
+        fieldNames = mapFieldsCoordinatesToText(fields)
+        options = {}
+        for f in fieldNames:
+            options[f] = ""
+        return options
 
 
 
