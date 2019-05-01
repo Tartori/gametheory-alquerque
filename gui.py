@@ -3,26 +3,14 @@
 from pip._vendor.colorama import init, Fore, Style
 import re
 import os
+from definitions import *
 
-# for demo state only!!!
-demoboard = [
-        [-1, -1, -1, -1, -1],
-        [-1, -1, -1, -1, -1],
-        [-1, -1, 0, 1, 1],
-        [1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1],
-    ]
-
-demohistory = [
-        "E0 to B4",
-        "something",
-        "K5 to W22             "
-    ]
 
 clear = lambda: os.system('cls' if os.name=='nt' else 'clear')
 
+
 def printScreen(positions, history, instruction):
-    """"""
+    """Renders one screen to the console."""
     init()
     clear()
     lines = assembleComponents(positions, history, instruction)
@@ -30,23 +18,26 @@ def printScreen(positions, history, instruction):
         print(line)
     return
 
+
 def assembleComponents(positions, history, instruction):
-    layout = [
-        ""
-    ]
+    """For one screen to be rendered, combines all components based on the given data."""
     screen = []
-    padding = 20
+    padding = 0
     initialpadding = 0
     while initialpadding < padding:
         screen.append("")
         initialpadding = initialpadding + 1
     renderInto(screen, 150, padding + 20, [], 0, 0, 0, 0)
     # insert from top to bottom and from right to left, because of escaped chars counting problems!
-    renderInto(screen, 150, padding + 20, prepareTitle(), padding + 0, 0, 40, 5)
-    renderInto(screen, 150, padding + 20, prepareHistory(history), padding + 6, 40, 40, 15)
-    renderInto(screen, 150, padding + 20, prepareBoard(positions), padding + 6, 0, 40, 15)
-    renderInto(screen, 150, padding + 20, prepareInstruction(instruction), padding + 19, 0, 40, 1)
+    wheight = padding + 27
+    wwidth = 150
+    renderInto(screen, wwidth, wheight, prepareTitle(), padding + 0, 0, 40, 5)
+    if len(positions) > 0:
+        renderInto(screen, wwidth, wheight, prepareHistory(history), padding + 6, 40, 40, 6)
+        renderInto(screen, wwidth, wheight, prepareBord(positions), padding + 6, 0, 40, 18)
+    renderInto(screen, wwidth, wheight, prepareInstruction(instruction), padding + 25, 0, 40, 1)
     return screen
+
 
 def prepareTitle():
     """Shows the game title. Returns a list of lines to be rendered."""
@@ -59,31 +50,41 @@ def prepareTitle():
     ]
     return title
 
-def prepareBoard(positions):
-    """Shows the Alquerque/Checkers board. Returns a list of lines to be rendered."""
-    colLabels    = "     0   1   2   3   4"
-    rowSeparator = "   +---+---+---+---+---+"
-    board = []
-    board.append(colLabels)
-    board.append(rowSeparator)
-    for rowindex in range(0, 5):
+
+def prepareBord(positions):
+    """Shows the bord. Returns a list of lines to be rendered."""
+    size = len(positions)
+    colLabels       = "    "
+    rowSeparator    = "   +"
+    for colindex in range(0, size):
+        colLabels += " " + str(colindex) + "  "
+        rowSeparator += "---+"
+    bord = []
+    bord.append(colLabels)
+    bord.append(rowSeparator)
+    for rowindex in range(0, size):
         cells = []
         cells.append(getRowLabel(rowindex)) # one char in length
-        for cellindex in range(0, 5):
+        for cellindex in range(0, size):
             cells.append(prepareCell(positions[rowindex][cellindex])) # one char in length
         row = (" " + ' ¦ '.join(['%s']*len(cells)) + " ¦") % tuple(cells)
-        board.append(row)
-        board.append(rowSeparator)
-    return board
+        bord.append(row)
+        bord.append(rowSeparator)
+    return bord
+
 
 def getRowLabel(rowindex):
+    """Returns the letter (A-E) for the desired row."""
     return chr(rowindex + 97).upper()
 
+
 def prepareCell(value):
+    """Returns the coin in the color of the respective player."""
     options = {
-        - 1: Fore.RED + "■" + Fore.RESET,
+        PLAYER_OPP: "x",
         0: " ",
-        1: Fore.CYAN + "■" + Fore.RESET
+        PLAYER_USER: "o",
+        POSSIBLE_MOVE: "?",
     }
     return options.get(value, "?")
 
@@ -94,12 +95,15 @@ def prepareHistory(steps):
         "HISTORY:",
         "----------------",
     ]
-    history.extend(steps)
+    for step in steps:
+        history.append(mapFieldCoordinatesToText(step[0]) + " to " + mapFieldCoordinatesToText(step[1]))
     return history
 
 def prepareInstruction(instruction):
-    result = Fore.YELLOW + instruction + Fore.RESET
+    """Returns an instruction to the user formatted."""
+    result = instruction
     return [result]
+
 
 def renderInto(whole, wwidth, wheight, part, ptop, pleft, pwidth, pheight):
     """Define the size of a canvas to be rendered and place some lines of content at a specific position."""
@@ -134,8 +138,40 @@ def escape_ansi(line):
     ansi_escape =re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
     return ansi_escape.sub('', line)
 
+
 def insertIntoString(fullString, newPart, startingAt):
+    """Insert a string into another string starting at a specific index. Takes into account that there might be esc chars."""
     prefix = fullString[:startingAt]
     postfix = fullString[(startingAt + len(escape_ansi(newPart))) :]
     newString = "".join([prefix, newPart, postfix])
     return newString
+
+
+def addCommandToVisibleCommandHistory(history, command):
+    """Adds the last user input to the cli-rendered history of commands."""
+    if(len(history) > 3):
+        history.pop(0)
+    history.append(command)
+    return history
+
+
+def getPlayersColor(player):
+    """Returns the color for PLAYER1 and PLAYER2."""
+    if not (player == PLAYER_USER or player == PLAYER_OPP):
+        raise Exception("Player does not exist")
+    if player == PLAYER_USER:
+        return Fore.BLUE
+    if player == PLAYER_OPP:
+        return Fore.RED
+
+def getMoveColor():
+    return Fore.GREEN
+
+def mapFieldCoordinatesToText(field):
+    return getRowLabel(field[0]) + str(field[1])
+
+def mapFieldsCoordinatesToText(fields):
+    result = []
+    for field in fields:
+        result.append(mapFieldCoordinatesToText(field))
+    return result
