@@ -8,17 +8,17 @@ class Bauernschach:
     gamestate = []
     initialGamestate = [
         [0, 0, 0, 0, 0, 0, 0, 0],
-        [-1, -1, -1, -1, -1, -1, -1, -1],
+        [PLAYER_OPP] * 8,
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
-        [1, 1, 1, 1, 1, 1, 1, 1],
+        [PLAYER_USER] * 8,
         [0, 0, 0, 0, 0, 0, 0, 0],
     ]
     gamestateHistory = []
     moveHistory = []
-    currentPlayer = PLAYER1
+    currentPlayer = PLAYER_USER
     currentlyPossibleMoves = []
 
     def __init__(self):
@@ -46,6 +46,13 @@ class Bauernschach:
         """Returns the bord as an array."""
         return self.gamestate
 
+    def getBordWithMoves(self, pawn):
+        bordWithMoves = deepcopy(self.gamestate)
+        movesForPawn = self.getMovesForPawn(pawn)
+        for m in movesForPawn:
+            bordWithMoves[m[0]][m[1]] = POSSIBLE_MOVE
+        return bordWithMoves
+
     def findAllMoves(self):
         """
         For each pawn of the current player, finds all possible moves.
@@ -55,7 +62,7 @@ class Bauernschach:
         for r in range(0, 8):
             for c in range(0, 8):
                 movesForPawn = []
-                if (r == 0 or r == len(self.gamestate) - 1) and self.gamestate[r][c] == PLAYER1:
+                if (r == 0 or r == len(self.gamestate) - 1) and self.gamestate[r][c] == PLAYER_USER:
                     raise Exception("Game is finished. Current player has pawn in goal row.")
 
                 pawn = (r, c)
@@ -98,10 +105,10 @@ class Bauernschach:
         field: (i, j) where i is rowindex and j is colindex.
         return: bool.
         """
-        if self.currentPlayer == PLAYER1:
-            opponent = PLAYER2
-        elif self.currentPlayer == PLAYER2:
-            opponent = PLAYER1
+        if self.currentPlayer == PLAYER_USER:
+            opponent = PLAYER_OPP
+        elif self.currentPlayer == PLAYER_OPP:
+            opponent = PLAYER_USER
         return self.gamestate[field[0]][field[1]] == opponent
 
     def fieldOnBord(self, field):
@@ -217,10 +224,10 @@ class Bauernschach:
         return self.Player1ToWin() or self.Player2ToWin()
 
     def Player1ToWin(self):
-        return PLAYER1 in self.gamestate[0]
+        return PLAYER_USER in self.gamestate[0]
 
     def Player2ToWin(self):
-        return PLAYER2 in self.gamestate[7]
+        return PLAYER_OPP in self.gamestate[7]
 
     def getMoveHistory(self):
         return self.moveHistory

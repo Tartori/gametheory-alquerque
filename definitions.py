@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
-PLAYER1 = 1
-PLAYER2 = -1
+PLAYER_USER = 1
+PLAYER_OPP = -1
 EMPTYCELL = 0
+POSSIBLE_MOVE = 2

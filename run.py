@@ -152,14 +152,14 @@ class App:
             return
 
         elif input == CMD_CHOOSE_FIRST_PLAYER_ME:
-            self.game.setFirstPlayer(PLAYER1)
+            self.game.setFirstPlayer(PLAYER_USER)
             self.game.start()
             self.loopState = STATE_CHOOSE_PAWN
             self.feedback = self.whosTurnItIs()
             return
 
         elif input == CMD_CHOOSE_FIRST_PLAYER_OPPONENT:
-            self.game.setFirstPlayer(PLAYER2)
+            self.game.setFirstPlayer(PLAYER_OPP)
             self.game.start()
             self.loopState = STATE_CHOOSE_PAWN
             self.feedback = self.whosTurnItIs()
@@ -196,11 +196,12 @@ class App:
 
     def doStepChooseMove(self):
         options = deepcopy(self.sharedOptions)
-        moves = mapFieldsCoordinatesToText(self.game.getMovesForPawn(mapFieldTextToCoordinates(self.selectedPawn)))
+        pawnField = mapFieldTextToCoordinates(self.selectedPawn)
+        moves = mapFieldsCoordinatesToText(self.game.getMovesForPawn(pawnField))
         for move in moves:
             options[move] = "Move " + self.selectedPawn + " to " + move + " "
         prefix = self.prependFeedback("Where would you like to move the pawn?")
-        printScreen(self.game.gamestate, self.game.getMoveHistory(), getInstructions(prefix, options))
+        printScreen(self.game.getBordWithMoves(pawnField), self.game.getMoveHistory(), getInstructions(prefix, options))
 
         input = self.readInput()
 
@@ -243,7 +244,7 @@ class App:
 
 
     def whosTurnItIs(self):
-        if self.game.currentPlayer == PLAYER1:
+        if self.game.currentPlayer == PLAYER_USER:
             return "Your turn! "
         else:
             return "Opp's turn! "

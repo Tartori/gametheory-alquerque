@@ -32,8 +32,9 @@ def assembleComponents(positions, history, instruction):
     wheight = padding + 27
     wwidth = 150
     renderInto(screen, wwidth, wheight, prepareTitle(), padding + 0, 0, 40, 5)
-    renderInto(screen, wwidth, wheight, prepareHistory(history), padding + 6, 40, 40, 6)
-    renderInto(screen, wwidth, wheight, prepareBord(positions), padding + 6, 0, 40, 18)
+    if len(positions) > 0:
+        renderInto(screen, wwidth, wheight, prepareHistory(history), padding + 6, 40, 40, 6)
+        renderInto(screen, wwidth, wheight, prepareBord(positions), padding + 6, 0, 40, 18)
     renderInto(screen, wwidth, wheight, prepareInstruction(instruction), padding + 25, 0, 40, 1)
     return screen
 
@@ -80,9 +81,10 @@ def getRowLabel(rowindex):
 def prepareCell(value):
     """Returns the coin in the color of the respective player."""
     options = {
-        PLAYER2: getPlayersColor(PLAYER2) + "■" + Fore.RESET,
+        PLAYER_OPP: getPlayersColor(PLAYER_OPP) + "■" + Fore.RESET,
         0: " ",
-        PLAYER1: getPlayersColor(PLAYER1) + "■" + Fore.RESET
+        PLAYER_USER: getPlayersColor(PLAYER_USER) + "■" + Fore.RESET,
+        POSSIBLE_MOVE: getMoveColor() + "■" + Fore.RESET,
     }
     return options.get(value, "?")
 
@@ -155,13 +157,15 @@ def addCommandToVisibleCommandHistory(history, command):
 
 def getPlayersColor(player):
     """Returns the color for PLAYER1 and PLAYER2."""
-    print(player)
-    if not (player == PLAYER1 or player == PLAYER2):
+    if not (player == PLAYER_USER or player == PLAYER_OPP):
         raise Exception("Player does not exist")
-    if player == PLAYER1:
+    if player == PLAYER_USER:
         return Fore.BLUE
-    if player == PLAYER2:
+    if player == PLAYER_OPP:
         return Fore.RED
+
+def getMoveColor():
+    return Fore.GREEN
 
 def mapFieldCoordinatesToText(field):
     return getRowLabel(field[0]) + str(field[1])
