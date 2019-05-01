@@ -55,29 +55,26 @@ class Bauernschach:
         for r in range(0, 8):
             for c in range(0, 8):
                 movesForPawn = []
-                if self.currentPlayer == PLAYER1:
-                    if r == 0 and self.gamestate[r][c] == PLAYER1:
-                        raise Exception("Game is finished. Current player has pawn in goal row.")
-                    pawn = (r, c)
-                    moveFront = (r - 1, c)
-                    moveFrontLeft = (r - 1, c - 1)
-                    moveFrontRight = (r - 1, c + 1)
+                if (r == 0 or r == len(self.gamestate) - 1) and self.gamestate[r][c] == PLAYER1:
+                    raise Exception("Game is finished. Current player has pawn in goal row.")
 
-                elif self.currentPlayer == PLAYER2:
-                    if r == 7 and self.gamestate[r][c] == PLAYER2:
-                        raise Exception("Game is finished. Current player has pawn in goal row.")
-                    pawn = (r, c)
-                    moveFront = (r + 1, c)
-                    moveFrontLeft = (r + 1, c + 1)
-                    moveFrontRight = (r + 1, c - 1)
+                pawn = (r, c)
 
                 # check if any pawn.
                 if not self.fieldOccupiedByCurrentPlayer(pawn):
                     continue
 
+                moveFront = (self.getAdvance(r), c)
+                moveFrontTwo = (self.getAdvance(self.getAdvance(r)), c)
+                moveFrontLeft = (self.getAdvance(r), self.getLeft(c))
+                moveFrontRight = (self.getAdvance(r), self.getRight(c))
+
                 # check if can move one straight ahead
                 if self.canMoveFront(pawn, moveFront):
                     movesForPawn.append(moveFront)
+                # check if can move two fields ahead
+                if self.canMoveFrontTwo(pawn, moveFrontTwo):
+                    movesForPawn.append(moveFrontTwo)
                 # check if can jump an opp pawn to front-left
                 if self.canMoveLeft(pawn, moveFrontLeft):
                     movesForPawn.append(moveFrontLeft)
@@ -123,11 +120,17 @@ class Bauernschach:
         move: (i, j) where i is rowindex and j is colindex referencing the field where the pawn wants to move to.
         return: bool.
         """
-        if self.currentPlayer == PLAYER1:
-            validMove = pawn[0] - 1 == move[0] and pawn[1] == move[1]
-        if self.currentPlayer == PLAYER2:
-            validMove = pawn[0] + 1 == move[0] and pawn[1] == move[1]
-        return validMove and self.fieldOnBord(move) and not self.fieldOccupied(move)
+        return self.fieldOnBord(move) and not self.fieldOccupied(move)
+
+    def canMoveFrontTwo(self, pawn, move):
+        """
+        Checks if a pawn can jump two field ahead on the bord. (only if has not yet moved, and both fields ahead unoccupied.)
+        pawn: (i, j) where i is rowindex and j is colindex referencing the field of a pawn.
+        move: (i, j) where i is rowindex and j is colindex referencing the field where the pawn wants to move to.
+        return: bool.
+        """
+        isFirstMovementForPiece = pawn[0] == 2 or pawn == len(self.gamestate) - 2
+        return self.fieldOnBord(move) and not self.fieldOccupied((self.getBack(move[0]), move[1])) and not self.fieldOccupied(move)
 
     def canMoveLeft(self, pawn, move):
         """
@@ -136,12 +139,7 @@ class Bauernschach:
         move: (i, j) where i is rowindex and j is colindex referencing the field where the pawn wants to move to.
         return: bool.
         """
-        if self.currentPlayer == PLAYER1:
-            validMove = pawn[0] - 1 == move[0] and pawn[1] - 1 == move[1]
-        if self.currentPlayer == PLAYER2:
-            validMove = pawn[0] + 1 == move[0] and pawn[1] + 1 == move[1]
-
-        return validMove and self.fieldOnBord(move) and self.fieldOccupiedByOpponent(move)
+        return self.fieldOnBord(move) and self.fieldOccupiedByOpponent(move)
 
     def canMoveRight(self, pawn, move):
         """
@@ -150,11 +148,7 @@ class Bauernschach:
         move: (i, j) where i is rowindex and j is colindex referencing the field where the pawn wants to move to.
         return: bool.
         """
-        if self.currentPlayer == PLAYER1:
-            validMove = pawn[0] - 1 == move[0] and pawn[1] + 1 == move[1]
-        if self.currentPlayer == PLAYER2:
-            validMove = pawn[0] + 1 == move[0] and pawn[1] - 1 == move[1]
-        return validMove and self.fieldOnBord(move) and self.fieldOccupiedByOpponent(move)
+        return self.fieldOnBord(move) and self.fieldOccupiedByOpponent(move)
 
     def getMovablePawns(self):
         return self.currentlyPossibleMoves.keys()
@@ -234,14 +228,14 @@ class Bauernschach:
     def getStateHistory(self):
         return self.gamestateHistory
 
-    def getLeftIndexFactor(self):
-        return self.currentPlayer * -1
+    def getLeft(self, rowIndex):
+        return rowIndex + self.currentPlayer * -1
 
-    def getForwardIndexFactor(self):
-        return self.currentPlayer * -1
+    def getRight(self, rowIndex):
+        return rowIndex + self.currentPlayer
 
-    def getRightIndexFactor(self):
-        return self.getLeftIndexFactor() * -1
+    def getAdvance(self, colIndex):
+        return colIndex + self.currentPlayer * -1
 
-    def getBackIndexFactor(self):
-        return self.getForwardIndexFactor() * -1
+    def getBack(self, colIndex):
+        return colIndex + self.currentPlayer
