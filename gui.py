@@ -22,7 +22,7 @@ def printScreen(positions, history, instruction):
 def assembleComponents(positions, history, instruction):
     """For one screen to be rendered, combines all components based on the given data."""
     screen = []
-    padding = 20
+    padding = 0
     initialpadding = 0
     while initialpadding < padding:
         screen.append("")
@@ -93,7 +93,8 @@ def prepareHistory(steps):
         "HISTORY:",
         "----------------",
     ]
-    history.extend(steps)
+    for step in steps:
+        history.append(mapFieldCoordinatesToText(step[0]) + " to " + mapFieldCoordinatesToText(step[1]))
     return history
 
 def prepareInstruction(instruction):

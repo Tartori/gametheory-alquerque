@@ -198,7 +198,7 @@ class App:
         options = deepcopy(self.sharedOptions)
         moves = mapFieldsCoordinatesToText(self.game.getMovesForPawn(mapFieldTextToCoordinates(self.selectedPawn)))
         for move in moves:
-            options[move] = "Move to " + move + " "
+            options[move] = "Move " + self.selectedPawn + " to " + move + " "
         prefix = self.prependFeedback("Where would you like to move the pawn?")
         printScreen(self.game.gamestate, self.game.getMoveHistory(), getInstructions(prefix, options))
 
@@ -211,7 +211,10 @@ class App:
 
         elif input in moves:
             self.selectedMove = input
-            self.game.doMove(self.selectedPawn, input)
+            pawn = mapFieldTextToCoordinates(self.selectedPawn)
+            move = mapFieldTextToCoordinates(input)
+            self.game.doMove(pawn, move)
+            self.history.append("Player " + str(self.game.currentPlayer) + " moved " + self.selectedPawn + " to " + input)
 
             if self.game.isTerminal():
                 self.loopState = STATE_WIN
@@ -222,7 +225,6 @@ class App:
             else:
                 self.game.toNextTurn()
                 self.loopState = STATE_CHOOSE_PAWN
-                self.feedback = self.whosTurnItIs() + "You want to move pawn " + self.sele + ". "
                 return
 
         else:

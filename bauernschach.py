@@ -31,11 +31,8 @@ class Bauernschach:
         self.findAllMoves()
 
     def toNextTurn(self):
-        if self.currentPlayer == PLAYER1:
-            self.currentPlayer == PLAYER2
-        elif self.currentPlayer == PLAYER2:
-            self.currentPlayer == PLAYER1
-        self.currentlyPossibleMoves = self.findAllMoves()
+        self.currentPlayer *= -1
+        self.findAllMoves()
 
     def setStartState(self):
         """Initializes the gamestate. Void."""
@@ -80,16 +77,17 @@ class Bauernschach:
 
                 # check if can move one straight ahead
                 if self.canMoveFront(pawn, moveFront):
-                    movesForPawn.append((pawn, moveFront))
+                    movesForPawn.append(moveFront)
                 # check if can jump an opp pawn to front-left
                 if self.canMoveLeft(pawn, moveFrontLeft):
-                    movesForPawn.append((pawn, moveFrontLeft))
+                    movesForPawn.append(moveFrontLeft)
                 # check if can jump an opp pawn to front-right
                 if self.canMoveRight(pawn, moveFrontRight):
-                    movesForPawn.append((pawn, moveFrontRight))
+                    movesForPawn.append(moveFrontRight)
 
                 if len(movesForPawn) > 0:
                     self.currentlyPossibleMoves[pawn] = movesForPawn
+        return
 
     def fieldOccupied(self, field):
         return self.gamestate[field[0]][field[1]] in [-1, 1]
@@ -109,7 +107,7 @@ class Bauernschach:
             opponent = PLAYER1
         return self.gamestate[field[0]][field[1]] == opponent
 
-    def fieldOnBoard(self, field):
+    def fieldOnBord(self, field):
         """
         Checks if the field is in the boundaries of the bord.
         field: (i, j) where i is rowindex and j is colindex.
@@ -129,7 +127,7 @@ class Bauernschach:
             validMove = pawn[0] - 1 == move[0] and pawn[1] == move[1]
         if self.currentPlayer == PLAYER2:
             validMove = pawn[0] + 1 == move[0] and pawn[1] == move[1]
-        return validMove and self.fieldOnBoard(move) and not self.fieldOccupied(move)
+        return validMove and self.fieldOnBord(move) and not self.fieldOccupied(move)
 
     def canMoveLeft(self, pawn, move):
         """
@@ -142,7 +140,8 @@ class Bauernschach:
             validMove = pawn[0] - 1 == move[0] and pawn[1] - 1 == move[1]
         if self.currentPlayer == PLAYER2:
             validMove = pawn[0] + 1 == move[0] and pawn[1] + 1 == move[1]
-        return validMove and self.fieldOnBoard(move) and self.fieldOccupiedByOpponent(move)
+
+        return validMove and self.fieldOnBord(move) and self.fieldOccupiedByOpponent(move)
 
     def canMoveRight(self, pawn, move):
         """
@@ -155,13 +154,14 @@ class Bauernschach:
             validMove = pawn[0] - 1 == move[0] and pawn[1] + 1 == move[1]
         if self.currentPlayer == PLAYER2:
             validMove = pawn[0] + 1 == move[0] and pawn[1] - 1 == move[1]
-        return validMove and self.fieldOnBoard(move) and self.fieldOccupiedByOpponent(move)
+        return validMove and self.fieldOnBord(move) and self.fieldOccupiedByOpponent(move)
 
     def getMovablePawns(self):
         return self.currentlyPossibleMoves.keys()
 
     def getMovesForPawn(self, pawn):
-        return self.currentlyPossibleMoves.get(pawn)
+        moves = self.currentlyPossibleMoves.get(pawn)
+        return moves
 
     def canBeMoved(self, pawn):
         return pawn in self.getMovablePawns()
@@ -196,7 +196,7 @@ class Bauernschach:
             self.gamestateHistory.append(deepcopy(self.gamestate))
             self.moveHistory.append((deepcopy(pawn), deepcopy(move)))
             self.gamestate[pawn[0]][pawn[1]] = 0
-            self.gamestate[move[0]][move[1]] = currentPlayer
+            self.gamestate[move[0]][move[1]] = self.currentPlayer
 
     def undoMove(self, mv):
         raise NotImplementedError("You should have implemented this")
@@ -220,7 +220,7 @@ class Bauernschach:
         raise NotImplementedError("You should have implemented this")
 
     def isTerminal(self):
-        return Player1ToWin() or Player2ToWin()
+        return self.Player1ToWin() or self.Player2ToWin()
 
     def Player1ToWin(self):
         return PLAYER1 in self.gamestate[0]
@@ -233,3 +233,15 @@ class Bauernschach:
 
     def getStateHistory(self):
         return self.gamestateHistory
+
+    def getLeftIndexFactor(self):
+        return self.currentPlayer * -1
+
+    def getForwardIndexFactor(self):
+        return self.currentPlayer * -1
+
+    def getRightIndexFactor(self):
+        return self.getLeftIndexFactor() * -1
+
+    def getBackIndexFactor(self):
+        return self.getForwardIndexFactor() * -1
