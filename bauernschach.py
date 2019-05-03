@@ -3,41 +3,35 @@
 from definitions import *
 from copy import deepcopy
 
+
 class Bauernschach:
 
     gamestate = []
-    # TODO: variable size!!
-    initialGamestate = [
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [PLAYER_OPP] * 8,
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [PLAYER_USER] * 8,
-        [0, 0, 0, 0, 0, 0, 0, 0],
-    ]
     gamestateHistory = []
     moveHistory = []
     currentPlayer = PLAYER_USER
     currentlyPossibleMoves = []
 
-    def __init__(self):
-        pass
+    def __init__(self, size=8):
+        self.size = size
 
     def start(self):
         self.moveHistory = []
         self.gamestateHistory = []
-        self.setStartState()
+        self.set_start_state()
 
     def toNextTurn(self):
         self.currentPlayer *= -1
         self.findAllMoves()
 
-    def setStartState(self):
+    def set_start_state(self):
         """Initializes the gamestate. Void."""
-        self.gamestate = deepcopy(self.initialGamestate)
-        return
+        if(self.size < 4):
+            self.size = 4
+        row = [0]*self.size
+        self.gamestate = [row] * self.size
+        self.gamestate[1] = [PLAYER_OPP]*self.size
+        self.gamestate[self.size-2] = [PLAYER_USER]*self.size
 
     # TODO: merge to init game.
     def setFirstPlayer(self, player):
@@ -64,7 +58,8 @@ class Bauernschach:
             for c in range(0, 8):
                 movesForPawn = []
                 if (r == 0 or r == len(self.gamestate) - 1) and self.gamestate[r][c] == PLAYER_USER:
-                    raise Exception("Game is finished. Current player has pawn in goal row.")
+                    raise Exception(
+                        "Game is finished. Current player has pawn in goal row.")
 
                 pawn = (r, c)
 
@@ -142,7 +137,8 @@ class Bauernschach:
             isFirstMovementForPiece = pawn[0] == len(self.gamestate) - 2
         if self.currentPlayer == PLAYER_OPP:
             isFirstMovementForPiece = pawn[0] == 1
-        bothFieldsFree = not self.fieldOccupied((self.getBack(move[0]), move[1])) and not self.fieldOccupied(move)
+        bothFieldsFree = not self.fieldOccupied(
+            (self.getBack(move[0]), move[1])) and not self.fieldOccupied(move)
         return self.fieldOnBord(move) and isFirstMovementForPiece and bothFieldsFree
 
     def canMoveLeft(self, pawn, move):
