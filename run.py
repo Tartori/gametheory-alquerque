@@ -277,6 +277,7 @@ class App:
             self.feedback = "You have won. Congrats! "
         else:
             self.feedback = "Opponent has won. Better luck next time. "
+        self.loopState = STATE_CHOOSE_GAME
 
     def whosTurnItIs(self):
         if self.game.currentPlayer == PLAYER_USER:
