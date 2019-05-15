@@ -73,19 +73,21 @@ class Bauernschach:
                 moveFrontTwo = (self.getAdvance(self.getAdvance(r)), c)
                 moveFrontLeft = (self.getAdvance(r), self.getLeft(c))
                 moveFrontRight = (self.getAdvance(r), self.getRight(c))
+                moveLeftEnPassant = (r, self.getLeft(c))
+                moveRightEnPassant = (r, self.getRight(c))
 
-                # check if can move one straight ahead
                 if self.canMoveFront(pawn, moveFront):
                     movesForPawn.append(moveFront)
-                # check if can move two fields ahead
                 if self.canMoveFrontTwo(pawn, moveFrontTwo):
                     movesForPawn.append(moveFrontTwo)
-                # check if can jump an opp pawn to front-left
-                if self.canMoveLeft(pawn, moveFrontLeft):
+                if self.canMoveFrontSideWithKill(pawn, moveFrontLeft):
                     movesForPawn.append(moveFrontLeft)
-                # check if can jump an opp pawn to front-right
-                if self.canMoveRight(pawn, moveFrontRight):
+                if self.canMoveFrontSideWithKill(pawn, moveFrontRight):
                     movesForPawn.append(moveFrontRight)
+                if self.canMoveEnPassant(pawn, moveLeftEnPassant):
+                    movesForPawn.append(moveLeftEnPassant)
+                if self.canMoveEnPassant(pawn, moveRightEnPassant):
+                    movesForPawn.append(moveRightEnPassant)
 
                 if len(movesForPawn) > 0:
                     self.currentlyPossibleMoves[pawn] = movesForPawn
@@ -146,33 +148,59 @@ class Bauernschach:
             isFirstMovementForPiece = pawn[0] == len(self.gamestate) - 2
         if self.currentPlayer == Player.OPP:
             isFirstMovementForPiece = pawn[0] == 1
-        bothFieldsFree = not self.fieldOccupied(
-            (self.getBack(move[0]), move[1])) and not self.fieldOccupied(move)
-        return self.fieldOnBord(move) and isFirstMovementForPiece and bothFieldsFree
+        if not isFirstMovementForPiece:
+            return False
+        if not self.fieldOnBord(move):
+            return False
+        if self.fieldOccupied((self.getBack(move[0]), move[1])):
+            return False
+        if self.fieldOccupied(move):
+            return False
+        return True
 
-    def canMoveLeft(self, pawn, move):
+    def canMoveFrontSideWithKill(self, pawn, move):
         """
-        Checks if a pawn can move to the field diagonally left ahead by
+        Checks if a pawn can move to the field diagonally left/right ahead by
         killing an opponent pawn.
+
         pawn: (i, j) where i is rowindex and j is colindex referencing the
         field of a pawn.
+
         move: (i, j) where i is rowindex and j is colindex referencing the
         field where the pawn wants to move to.
+
         return: bool.
         """
         return self.fieldOnBord(move) and self.fieldOccupiedByOpponent(move)
 
-    def canMoveRight(self, pawn, move):
+    def canMoveEnPassant(self, pawn, move):
         """
-        Checks if a pawn can move to the field diagonally right ahead by
-        killing an opponent pawn.
+        Checks if en-passant move to the left is possible.
+        This is only possible if A has moved a pawn two cells from initial
+        position in A's latest turn
+        and if B has a pawn to the right/left of A's moved pawn.
+
         pawn: (i, j) where i is rowindex and j is colindex referencing the
         field of a pawn.
+
         move: (i, j) where i is rowindex and j is colindex referencing the
         field where the pawn wants to move to.
+
         return: bool.
         """
-        return self.fieldOnBord(move) and self.fieldOccupiedByOpponent(move)
+        if not self.fieldOnBord(move):
+            return False
+        if not self.fieldOccupiedByOpponent(move):
+            return False
+        if not len(self.moveHistory) > 0:
+            return False
+        if not self.moveHistory[-1][1] == move:
+            return False
+        deltaOppPawnMove = self.moveHistory[-1][1][0] - \
+            self.moveHistory[-1][0][0]
+        if not abs(deltaOppPawnMove) == 2:
+            return False
+        return True
 
     def getMovablePawns(self):
         return self.currentlyPossibleMoves.keys()
@@ -187,11 +215,20 @@ class Bauernschach:
     def possibleMove(self, pawn, move):
         """
         Checks if a pawn can move to a certain field.
-        pawn: (i, j) where i is rowindex and j is colindex referencing the field of a pawn.
-        move: (i, j) where i is rowindex and j is colindex referencing the field where the pawn wants to move to.
+
+        pawn: (i, j) where i is rowindex and j is colindex referencing
+        the field of a pawn.
+
+        move: (i, j) where i is rowindex and j is colindex referencing
+        the field where the pawn wants to move to.
+
         return: bool.
         """
-        return self.canMoveFront(pawn, move) or self.canMoveLeft(pawn, move) or self.canMoveRight(pawn, move)
+        canFront = self.canMoveFront(pawn, move)
+        canFrontTwo = self.canMoveFrontTwo(pawn, move)
+        canSide = self.canMoveFrontSideWithKill(pawn, move)
+        canEnPassant = self.canMoveEnPassant(pawn, move)
+        return canFront or canFrontTwo or canSide or canEnPassant
 
     def hasNextMove(self):
         """
@@ -205,9 +242,15 @@ class Bauernschach:
 
     def doMove(self, pawn, move):
         """
-        Updates the gamestate by performing the move with the pawn. Saves the previous gamestate and the move in the respective history.
-        pawn: (i, j) where i is rowindex and j is colindex referencing the field of a pawn.
-        move: (i, j) where i is rowindex and j is colindex referencing the field where the pawn wants to move to.
+        Updates the gamestate by performing the move with the pawn.
+        Saves the previous gamestate and the move in the respective history.
+
+        pawn: (i, j) where i is rowindex and j is colindex referencing
+        the field of a pawn.
+
+        move: (i, j) where i is rowindex and j is colindex referencing
+        the field where the pawn wants to move to.
+
         return: void.
         """
         if self.possibleMove(pawn, move):
