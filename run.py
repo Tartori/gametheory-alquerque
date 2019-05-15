@@ -29,6 +29,7 @@ CMD_CHOOSE_GAME_BAUERNSCHACH = "B"
 CMD_CHOOSE_FIRST_PLAYER_ME = "ME"
 CMD_CHOOSE_FIRST_PLAYER_OPPONENT = "OPP"
 
+
 class App:
     """
     Contains the loop of printing to screen, getting user input, and interacting with the game logic.
@@ -97,9 +98,9 @@ class App:
             options=deepcopy(self.sharedOptions)
         )
         params.options.update({
-                CMD_CHOOSE_GAME_ALQUERQUE: "play Alquerque",
-                CMD_CHOOSE_GAME_BAUERNSCHACH: "play Bauernschach",
-            })
+            CMD_CHOOSE_GAME_ALQUERQUE: "play Alquerque",
+            CMD_CHOOSE_GAME_BAUERNSCHACH: "play Bauernschach",
+        })
 
         prefix = self.prependFeedback("Hi! Which game would you like to play?")
         printScreen([], [], getInstructions(prefix, params.options))
@@ -118,7 +119,7 @@ class App:
             return
 
         elif input == CMD_CHOOSE_GAME_BAUERNSCHACH:
-            self.game = Bauernschach()
+            self.game = Bauernschach(8)
             self.loopState = STATE_CHOOSE_PLAYER_ORDER
             self.feedback = "You have chosen to play Bauernschach."
             return
@@ -160,9 +161,9 @@ class App:
             options=deepcopy(self.sharedOptions)
         )
         params.options.update({
-                CMD_CHOOSE_FIRST_PLAYER_ME: "if you want to start",
-                CMD_CHOOSE_FIRST_PLAYER_OPPONENT: "if opponent shall start",
-            })
+            CMD_CHOOSE_FIRST_PLAYER_ME: "if you want to start",
+            CMD_CHOOSE_FIRST_PLAYER_OPPONENT: "if opponent shall start",
+        })
         prefix = self.prependFeedback("Which player shall start first?")
         printScreen([], [], getInstructions(prefix, params.options))
 
@@ -200,9 +201,11 @@ class App:
             question="Hi! Which game would you like to play?",
             options=deepcopy(self.sharedOptions)
         )
-        params.options.update(self.getChoosableFieldsAsOptions(self.game.getMovablePawns()))
+        params.options.update(self.getChoosableFieldsAsOptions(
+            self.game.getMovablePawns()))
         prefix = self.prependFeedback("Which pawn do you want to move? ")
-        printScreen(self.game.gamestate, self.game.getMoveHistory(), getInstructions(prefix, params.options))
+        printScreen(self.game.gamestate, self.game.getMoveHistory(),
+                    getInstructions(prefix, params.options))
 
         input = self.readInput()
 
@@ -231,9 +234,11 @@ class App:
             options=deepcopy(self.sharedOptions)
         )
         pawnField = mapFieldTextToCoordinates(self.selectedPawn)
-        params.options.update(self.getChoosableFieldsAsOptions(self.game.getMovesForPawn(pawnField)))
+        params.options.update(self.getChoosableFieldsAsOptions(
+            self.game.getMovesForPawn(pawnField)))
         prefix = self.prependFeedback("Where would you like to move the pawn?")
-        printScreen(self.game.getBordWithMoves(pawnField), self.game.getMoveHistory(), getInstructions(prefix, params.options))
+        printScreen(self.game.getBordWithMoves(
+            pawnField), self.game.getMoveHistory(), getInstructions(prefix, params.options))
 
         input = self.readInput()
 
@@ -247,7 +252,8 @@ class App:
             pawn = mapFieldTextToCoordinates(self.selectedPawn)
             move = mapFieldTextToCoordinates(input)
             self.game.doMove(pawn, move)
-            self.history.append("Player " + str(self.game.currentPlayer) + " moved " + self.selectedPawn + " to " + input)
+            self.history.append("Player " + str(self.game.currentPlayer) +
+                                " moved " + self.selectedPawn + " to " + input)
 
             if self.game.isTerminal():
                 self.loopState = STATE_WIN
@@ -274,7 +280,6 @@ class App:
         else:
             self.feedback = "Opponent has won. Better luck next time. "
 
-
     def whosTurnItIs(self):
         if self.game.currentPlayer == PLAYER_USER:
             return "Your turn! "
@@ -287,7 +292,6 @@ class App:
         for f in fieldNames:
             options[f] = ""
         return options
-
 
 
 # Run the application.
