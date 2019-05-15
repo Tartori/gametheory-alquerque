@@ -7,6 +7,19 @@ PLAYER_OPP = -1
 EMPTYCELL = 0
 POSSIBLE_MOVE = 2
 
+
+class Player:
+    USER = 1
+    OPP = -1
+
+
+class FieldValue:
+    USER = 1
+    OPP = -1
+    EMPTY = 0
+    POSSIBLE_MOVE = 2
+
+
 class ScreenParameters:
     """
     Pass parameters from game loop to screen rendering:
