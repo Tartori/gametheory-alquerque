@@ -175,15 +175,13 @@ class App:
             return
 
         elif input == CMD_CHOOSE_FIRST_PLAYER_ME:
-            self.game.setFirstPlayer(PLAYER_USER)
-            self.game.start()
+            self.game.start(PLAYER_USER)
             self.loopState = STATE_CHOOSE_PAWN
             self.feedback = self.whosTurnItIs()
             return
 
         elif input == CMD_CHOOSE_FIRST_PLAYER_OPPONENT:
-            self.game.setFirstPlayer(PLAYER_OPP)
-            self.game.start()
+            self.game.start(PLAYER_OPP)
             self.loopState = STATE_CHOOSE_PAWN
             self.feedback = self.whosTurnItIs()
             return

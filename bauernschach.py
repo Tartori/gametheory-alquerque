@@ -15,10 +15,12 @@ class Bauernschach:
     def __init__(self, size=8):
         self.size = size
 
-    def start(self):
+    def start(self, player):
         self.moveHistory = []
         self.gamestateHistory = []
         self.set_start_state()
+        self.currentPlayer = player
+        self.findAllMoves()
 
     def toNextTurn(self):
         self.currentPlayer *= -1
@@ -32,10 +34,6 @@ class Bauernschach:
         self.gamestate = [row] * self.size
         self.gamestate[1] = [Player.OPP]*self.size
         self.gamestate[self.size-2] = [Player.USER]*self.size
-
-    # TODO: merge to init game.
-    def setFirstPlayer(self, player):
-        self.currentPlayer = player
 
     def getBord(self):
         """Returns the bord as an array."""
