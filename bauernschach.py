@@ -30,10 +30,11 @@ class Bauernschach:
         """Initializes the gamestate. Void."""
         if(self.size < 4):
             self.size = 4
-        row = [0]*self.size
-        self.gamestate = [row] * self.size
-        self.gamestate[1] = [Player.OPP]*self.size
-        self.gamestate[self.size-2] = [Player.USER]*self.size
+        # https://stackoverflow.com/questions/9459337/assign-value-to-an-individual-cell-in-a-two-dimensional-python-array
+        self.gamestate = [
+            [0 for col in range(self.size)] for row in range(self.size)]
+        self.gamestate[1] = [Player.OPP for col in range(self.size)]
+        self.gamestate[self.size-2] = [Player.USER for col in range(self.size)]
 
     def getBord(self):
         """Returns the bord as an array."""
