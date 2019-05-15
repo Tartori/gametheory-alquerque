@@ -11,38 +11,50 @@ from input import *
 from bauernschach import *
 from alquerque import *
 
-ALQUERQUE = 0
-BAUERNSCHACH = 1
 
-# TODO: make Enum!
-STATE_CHOOSE_GAME = 0
-STATE_CHOOSE_PLAYER_ORDER = 1
-STATE_CHOOSE_PAWN = 2
-STATE_CHOOSE_MOVE = 3
-STATE_SWITCH_TURN = 4
-STATE_WIN = 5
-STATE_BYE = -1
+class Games:
+    ALQUERQUE = 0
+    BAUERNSCHACH = 1
 
-CMD_QUIT_APP = "STOP"
-CMD_CHOOSE_GAME_ALQUERQUE = "A"
-CMD_CHOOSE_GAME_BAUERNSCHACH = "B"
-CMD_CHOOSE_FIRST_PLAYER_ME = "ME"
-CMD_CHOOSE_FIRST_PLAYER_OPPONENT = "OPP"
+
+class States:
+    CHOOSE_GAME = 0
+    CHOOSE_PLAYER_ORDER = 1
+    CHOOSE_PAWN = 2
+    CHOOSE_MOVE = 3
+    SWITCH_TURN = 4
+    WIN = 5
+    BYE = -1
+
+
+class Commands:
+    QUIT_APP = "X"
+    CHOOSE_GAME_ALQUERQUE = "A"
+    CHOOSE_GAME_BAUERNSCHACH = "B"
+    CHOOSE_FIRST_PLAYER_ME = "M"
+    CHOOSE_FIRST_PLAYER_OPPONENT = "P"
 
 
 class App:
     """
-    Contains the loop of printing to screen, getting user input, and interacting with the game logic.
-    Is agnostic of the specific game (as long as game implements required methods).
+    Contains the loop of printing to screen, getting user input,
+    and interacting with the game logic.
+    Is agnostic of the specific game (as long as game implements
+    required methods).
 
-    Attributes:
-        loopState               Contains the state as in a automaton.
-        feedback                A string containing feedback to be shown to the user when entering the next state.
-        game                    References the game instance that contains all game logic.
-        selectedPawn            Describes the currently selected pawn in format A0.
-        selectedMove            Describes the currently selected move for the selected pawn in format A0.
+    loopState: Contains the state as in a automaton.
+
+    feedback: A string containing feedback to be shown to the user when
+    entering the next state.
+
+    game: References the game instance that contains all game logic.
+
+    selectedPawn: Describes the currently selected pawn in format A0.
+
+    selectedMove: Describes the currently selected move for the selected pawn
+    in format A0.
     """
-    loopState = STATE_CHOOSE_GAME
+    loopState = States.CHOOSE_GAME
     currentGameId = None
     feedback = None
     game = None
@@ -52,7 +64,7 @@ class App:
     selectedMove = None
 
     sharedOptions = {
-        CMD_QUIT_APP: "stops app",
+        Commands.QUIT_APP: "stops app",
     }
 
     def __init__(self):
@@ -67,22 +79,22 @@ class App:
         """
         while True:
             try:
-                if self.loopState == STATE_CHOOSE_GAME:
+                if self.loopState == States.CHOOSE_GAME:
                     self.doStepChooseGame()
                     continue
-                elif self.loopState == STATE_CHOOSE_PLAYER_ORDER:
+                elif self.loopState == States.CHOOSE_PLAYER_ORDER:
                     self.do_step_choose_player_order()
                     continue
-                elif self.loopState == STATE_CHOOSE_PAWN:
+                elif self.loopState == States.CHOOSE_PAWN:
                     self.doStepChoosePawn()
                     continue
-                elif self.loopState == STATE_CHOOSE_MOVE:
+                elif self.loopState == States.CHOOSE_MOVE:
                     self.doStepChooseMove()
                     continue
-                elif self.loopState == STATE_WIN:
+                elif self.loopState == States.WIN:
                     self.doStepWin()
                     continue
-                elif self.loopState == STATE_BYE:
+                elif self.loopState == States.BYE:
                     self.doStepBye()
                     break
             except:
@@ -98,8 +110,8 @@ class App:
             options=deepcopy(self.sharedOptions)
         )
         params.options.update({
-            CMD_CHOOSE_GAME_ALQUERQUE: "play Alquerque",
-            CMD_CHOOSE_GAME_BAUERNSCHACH: "play Bauernschach",
+            Commands.CHOOSE_GAME_ALQUERQUE: "play Alquerque",
+            Commands.CHOOSE_GAME_BAUERNSCHACH: "play Bauernschach",
         })
 
         prefix = self.prependFeedback("Hi! Which game would you like to play?")
@@ -107,20 +119,20 @@ class App:
 
         input = self.readInput()
 
-        if input == CMD_QUIT_APP:
+        if input == Commands.QUIT_APP:
             self.feedback = None
-            self.loopState = STATE_BYE
+            self.loopState = States.BYE
             return
 
-        elif input == CMD_CHOOSE_GAME_ALQUERQUE:
+        elif input == Commands.CHOOSE_GAME_ALQUERQUE:
             self.game = Alquerque()
-            self.loopState = STATE_CHOOSE_PLAYER_ORDER
+            self.loopState = States.CHOOSE_PLAYER_ORDER
             self.feedback = "You have chosen to play Alquerque."
             return
 
-        elif input == CMD_CHOOSE_GAME_BAUERNSCHACH:
+        elif input == Commands.CHOOSE_GAME_BAUERNSCHACH:
             self.game = Bauernschach(8)
-            self.loopState = STATE_CHOOSE_PLAYER_ORDER
+            self.loopState = States.CHOOSE_PLAYER_ORDER
             self.feedback = "You have chosen to play Bauernschach."
             return
 
@@ -129,20 +141,22 @@ class App:
             return
 
     def prependFeedback(self, prefix):
-        if not self.feedback is None and len(self.feedback) > 0:
+        if self.feedback is not None and len(self.feedback) > 0:
             prefix = self.feedback + " " + prefix
             self.feedback = None
         return prefix
 
     def consumeFeedback(self):
-        if not self.feedback is None:
-            return self.feedback
+        if self.feedback is not None:
+            f = self.feedback
             self.feedback = None
+            return f
         return None
 
     def readInput(self):
         """
-        Gets the user input. Cleans out any line breaks and ensures is in upper case.
+        Gets the user input. Cleans out any line breaks
+        and ensures is in upper case.
         return: String of user input.
         """
         try:
@@ -161,28 +175,28 @@ class App:
             options=deepcopy(self.sharedOptions)
         )
         params.options.update({
-            CMD_CHOOSE_FIRST_PLAYER_ME: "if you want to start",
-            CMD_CHOOSE_FIRST_PLAYER_OPPONENT: "if opponent shall start",
+            Commands.CHOOSE_FIRST_PLAYER_ME: "if you want to start",
+            Commands.CHOOSE_FIRST_PLAYER_OPPONENT: "if opponent shall start",
         })
         prefix = self.prependFeedback("Which player shall start first?")
         printScreen([], [], getInstructions(prefix, params.options))
 
         input = self.readInput()
 
-        if input == CMD_QUIT_APP:
+        if input == Commands.QUIT_APP:
             self.feedback = None
-            self.loopState = STATE_BYE
+            self.loopState = States.BYE
             return
 
-        elif input == CMD_CHOOSE_FIRST_PLAYER_ME:
+        elif input == Commands.CHOOSE_FIRST_PLAYER_ME:
             self.game.start(PLAYER_USER)
-            self.loopState = STATE_CHOOSE_PAWN
+            self.loopState = States.CHOOSE_PAWN
             self.feedback = self.whosTurnItIs()
             return
 
-        elif input == CMD_CHOOSE_FIRST_PLAYER_OPPONENT:
+        elif input == Commands.CHOOSE_FIRST_PLAYER_OPPONENT:
             self.game.start(PLAYER_OPP)
-            self.loopState = STATE_CHOOSE_PAWN
+            self.loopState = States.CHOOSE_PAWN
             self.feedback = self.whosTurnItIs()
             return
 
@@ -207,14 +221,14 @@ class App:
 
         input = self.readInput()
 
-        if input == CMD_QUIT_APP:
+        if input == Commands.QUIT_APP:
             self.feedback = None
-            self.loopState = STATE_BYE
+            self.loopState = States.BYE
             return
 
         elif input in params.options:
             self.selectedPawn = input
-            self.loopState = STATE_CHOOSE_MOVE
+            self.loopState = States.CHOOSE_MOVE
             self.feedback = "You want to move pawn " + input + ". "
             return
 
@@ -235,14 +249,16 @@ class App:
         params.options.update(self.getChoosableFieldsAsOptions(
             self.game.getMovesForPawn(pawnField)))
         prefix = self.prependFeedback("Where would you like to move the pawn?")
-        printScreen(self.game.getBordWithMoves(
-            pawnField), self.game.getMoveHistory(), getInstructions(prefix, params.options))
+        instructions = getInstructions(prefix, params.options)
+        movehistory = self.game.getMoveHistory()
+        board = self.game.getBordWithMoves(pawnField)
+        printScreen(board, movehistory, instructions)
 
         input = self.readInput()
 
-        if input == CMD_QUIT_APP:
+        if input == Commands.QUIT_APP:
             self.feedback = None
-            self.loopState = STATE_BYE
+            self.loopState = States.BYE
             return
 
         elif input in params.options:
@@ -254,14 +270,14 @@ class App:
                                 " moved " + self.selectedPawn + " to " + input)
 
             if self.game.isTerminal():
-                self.loopState = STATE_WIN
+                self.loopState = States.WIN
                 self.feedback = "Game finished. "
                 self.selectedMove = None
                 self.selectedPawn = None
                 return
             else:
                 self.game.toNextTurn()
-                self.loopState = STATE_CHOOSE_PAWN
+                self.loopState = States.CHOOSE_PAWN
                 return
 
         else:
@@ -277,7 +293,7 @@ class App:
             self.feedback = "You have won. Congrats! "
         else:
             self.feedback = "Opponent has won. Better luck next time. "
-        self.loopState = STATE_CHOOSE_GAME
+        self.loopState = States.CHOOSE_GAME
 
     def whosTurnItIs(self):
         if self.game.currentPlayer == PLAYER_USER:
