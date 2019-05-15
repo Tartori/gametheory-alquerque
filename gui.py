@@ -6,7 +6,7 @@ import os
 from definitions import *
 
 
-clear = lambda: os.system('cls' if os.name=='nt' else 'clear')
+def clear(): return os.system('cls' if os.name == 'nt' else 'clear')
 
 
 def printScreen(positions, history, instruction):
@@ -33,9 +33,12 @@ def assembleComponents(positions, history, instruction):
     wwidth = 150
     renderInto(screen, wwidth, wheight, prepareTitle(), padding + 0, 0, 40, 5)
     if len(positions) > 0:
-        renderInto(screen, wwidth, wheight, prepareHistory(history), padding + 6, 40, 40, 6)
-        renderInto(screen, wwidth, wheight, prepareBord(positions), padding + 6, 0, 40, 18)
-    renderInto(screen, wwidth, wheight, prepareInstruction(instruction), padding + 25, 0, 40, 1)
+        renderInto(screen, wwidth, wheight, prepareHistory(
+            history), padding + 6, 40, 40, 6)
+        renderInto(screen, wwidth, wheight, prepareBord(
+            positions), padding + 6, 0, 40, 18)
+    renderInto(screen, wwidth, wheight, prepareInstruction(
+        instruction), padding + 25, 0, 40, 1)
     return screen
 
 
@@ -46,7 +49,8 @@ def prepareTitle():
         "|  _  | |___ _ _ ___ ___ ___ _ _ ___ ",
         "|     | | . | | | -_|  _| . | | | -_|",
         "|__|__|_|_  |___|___|_| |_  |___|___|",
-        "          |_|             |_|   " + Fore.LIGHTBLACK_EX + "by Julian Stampfli and Marc Rey 2019" + Fore.RESET,
+        "          |_|             |_|   " + Fore.LIGHTBLACK_EX +
+        "by Julian Stampfli and Marc Rey 2019" + Fore.RESET,
     ]
     return title
 
@@ -54,8 +58,8 @@ def prepareTitle():
 def prepareBord(positions):
     """Shows the bord. Returns a list of lines to be rendered."""
     size = len(positions)
-    colLabels       = "    "
-    rowSeparator    = "   +"
+    colLabels = "    "
+    rowSeparator = "   +"
     for colindex in range(0, size):
         colLabels += " " + str(colindex) + "  "
         rowSeparator += "---+"
@@ -64,10 +68,11 @@ def prepareBord(positions):
     bord.append(rowSeparator)
     for rowindex in range(0, size):
         cells = []
-        cells.append(getRowLabel(rowindex)) # one char in length
+        cells.append(getRowLabel(rowindex))  # one char in length
         for cellindex in range(0, size):
-            cells.append(prepareCell(positions[rowindex][cellindex])) # one char in length
-        row = (" " + ' ¦ '.join(['%s']*len(cells)) + " ¦") % tuple(cells)
+            # one char in length
+            cells.append(prepareCell(positions[rowindex][cellindex]))
+        row = (" " + ' | '.join(['%s']*len(cells)) + " |") % tuple(cells)
         bord.append(row)
         bord.append(rowSeparator)
     return bord
@@ -96,8 +101,10 @@ def prepareHistory(steps):
         "----------------",
     ]
     for step in steps:
-        history.append(mapFieldCoordinatesToText(step[0]) + " to " + mapFieldCoordinatesToText(step[1]))
+        history.append(mapFieldCoordinatesToText(
+            step[0]) + " to " + mapFieldCoordinatesToText(step[1]))
     return history
+
 
 def prepareInstruction(instruction):
     """Returns an instruction to the user formatted."""
@@ -135,14 +142,14 @@ def renderInto(whole, wwidth, wheight, part, ptop, pleft, pwidth, pheight):
 
 def escape_ansi(line):
     """If we have some escape characters in a string, they would be counted by len() but not shown. Thus strip before getting len()."""
-    ansi_escape =re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
+    ansi_escape = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
     return ansi_escape.sub('', line)
 
 
 def insertIntoString(fullString, newPart, startingAt):
     """Insert a string into another string starting at a specific index. Takes into account that there might be esc chars."""
     prefix = fullString[:startingAt]
-    postfix = fullString[(startingAt + len(escape_ansi(newPart))) :]
+    postfix = fullString[(startingAt + len(escape_ansi(newPart))):]
     newString = "".join([prefix, newPart, postfix])
     return newString
 
@@ -164,11 +171,14 @@ def getPlayersColor(player):
     if player == PLAYER_OPP:
         return Fore.RED
 
+
 def getMoveColor():
     return Fore.GREEN
 
+
 def mapFieldCoordinatesToText(field):
     return getRowLabel(field[0]) + str(field[1])
+
 
 def mapFieldsCoordinatesToText(fields):
     result = []
