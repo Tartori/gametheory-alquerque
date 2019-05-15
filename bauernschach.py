@@ -56,9 +56,12 @@ class Bauernschach:
         for r in range(0, 8):
             for c in range(0, 8):
                 movesForPawn = []
-                if (r == 0 or r == len(self.gamestate) - 1) and self.gamestate[r][c] == Player.USER:
-                    raise Exception(
-                        "Game is finished. Current player has pawn in goal row.")
+
+                isFinalRow = r == 0 or r == len(self.gamestate) - 1
+                anyPlayer = [Player.USER, Player.OPP]
+                isOccupied = self.gamestate[r][c] in anyPlayer
+                if (isFinalRow and isOccupied):
+                    raise Exception("Game is finished.")
 
                 pawn = (r, c)
 
