@@ -24,7 +24,8 @@ class ScreenParameters:
     """
     Pass parameters from game loop to screen rendering:
     - bord: 2D array for rows and cells/cols.
-    - moveHistory: array of 2-tuples of 2-tuples [((fromRow, fromCol), (toRow, toCol)), ...].
+    - moveHistory: array of 2-tuples of 2-tuples
+      [((fromRow, fromCol), (toRow, toCol)), ...].
     - currentPlayer: int constant identifying the player.
     - feedback: feedback from executing the previous user input.
     - question: instruction for the user.

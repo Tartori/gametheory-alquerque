@@ -97,7 +97,8 @@ class Bauernschach:
 
     def fieldOccupiedByOpponent(self, field):
         """
-        Checks if a field on the board is occupied by a pawn owned by the opposing player.
+        Checks if a field on the board is occupied by a pawn owned by the
+        opposing player.
         field: (i, j) where i is rowindex and j is colindex.
         return: bool.
         """
@@ -118,18 +119,24 @@ class Bauernschach:
 
     def canMoveFront(self, pawn, move):
         """
-        Checks if a pawn can move to the neighbouring field straight ahead on the bord.
-        pawn: (i, j) where i is rowindex and j is colindex referencing the field of a pawn.
-        move: (i, j) where i is rowindex and j is colindex referencing the field where the pawn wants to move to.
+        Checks if a pawn can move to the neighbouring field straight ahead on
+        the bord.
+        pawn: (i, j) where i is rowindex and j is colindex referencing the
+        field of a pawn.
+        move: (i, j) where i is rowindex and j is colindex referencing the
+        field where the pawn wants to move to.
         return: bool.
         """
         return self.fieldOnBord(move) and not self.fieldOccupied(move)
 
     def canMoveFrontTwo(self, pawn, move):
         """
-        Checks if a pawn can jump two field ahead on the bord. (only if has not yet moved, and both fields ahead unoccupied.)
-        pawn: (i, j) where i is rowindex and j is colindex referencing the field of a pawn.
-        move: (i, j) where i is rowindex and j is colindex referencing the field where the pawn wants to move to.
+        Checks if a pawn can jump two field ahead on the bord. (only if has
+        not yet moved, and both fields ahead unoccupied.)
+        pawn: (i, j) where i is rowindex and j is colindex referencing the
+        field of a pawn.
+        move: (i, j) where i is rowindex and j is colindex referencing the
+        field where the pawn wants to move to.
         return: bool.
         """
         isFirstMovementForPiece = False
@@ -143,18 +150,24 @@ class Bauernschach:
 
     def canMoveLeft(self, pawn, move):
         """
-        Checks if a pawn can move to the field diagonally left ahead by killing an opponent pawn.
-        pawn: (i, j) where i is rowindex and j is colindex referencing the field of a pawn.
-        move: (i, j) where i is rowindex and j is colindex referencing the field where the pawn wants to move to.
+        Checks if a pawn can move to the field diagonally left ahead by
+        killing an opponent pawn.
+        pawn: (i, j) where i is rowindex and j is colindex referencing the
+        field of a pawn.
+        move: (i, j) where i is rowindex and j is colindex referencing the
+        field where the pawn wants to move to.
         return: bool.
         """
         return self.fieldOnBord(move) and self.fieldOccupiedByOpponent(move)
 
     def canMoveRight(self, pawn, move):
         """
-        Checks if a pawn can move to the field diagonally right ahead by killing an opponent pawn.
-        pawn: (i, j) where i is rowindex and j is colindex referencing the field of a pawn.
-        move: (i, j) where i is rowindex and j is colindex referencing the field where the pawn wants to move to.
+        Checks if a pawn can move to the field diagonally right ahead by
+        killing an opponent pawn.
+        pawn: (i, j) where i is rowindex and j is colindex referencing the
+        field of a pawn.
+        move: (i, j) where i is rowindex and j is colindex referencing the
+        field where the pawn wants to move to.
         return: bool.
         """
         return self.fieldOnBord(move) and self.fieldOccupiedByOpponent(move)
