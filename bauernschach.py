@@ -12,8 +12,9 @@ class Bauernschach:
     currentPlayer = Player.USER
     currentlyPossibleMoves = []
 
-    def __init__(self, size=8):
+    def __init__(self, player, size=8):
         self.size = size
+        self.start(player)  # TODO: refactor
 
     def start(self, player):
         self.moveHistory = []
@@ -53,8 +54,8 @@ class Bauernschach:
         return: void. (sets field)
         """
         self.currentlyPossibleMoves = {}
-        for r in range(0, 8):
-            for c in range(0, 8):
+        for r in range(0, self.size):
+            for c in range(0, self.size):
                 movesForPawn = []
 
                 isFinalRow = r == 0 or r == len(self.gamestate) - 1
@@ -269,7 +270,7 @@ class Bauernschach:
         return Player.USER in self.gamestate[0]
 
     def Player2ToWin(self):
-        return Player.OPP in self.gamestate[7]
+        return Player.OPP in self.gamestate[self.size - 1]
 
     def getMoveHistory(self):
         return self.moveHistory

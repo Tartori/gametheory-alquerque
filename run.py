@@ -8,6 +8,7 @@ import re
 
 from gui import *
 from input import *
+from machine import RandomMachine
 from bauernschach import *
 from alquerque import *
 
@@ -19,11 +20,15 @@ class Games:
 
 class States:
     CHOOSE_GAME = 0
-    CHOOSE_PLAYER_ORDER = 1
-    CHOOSE_PAWN = 2
-    CHOOSE_MOVE = 3
-    SWITCH_TURN = 4
-    WIN = 5
+    CHOOSE_BOARD_SIZE = 1
+    CHOOSE_OPP_HUMAN_OR_MACHINE = 2
+    CHOOSE_MACHINE_STRATEGY = 3
+    CHOOSE_PLAYER_ORDER = 4
+    START_GAME = 5
+    CHOOSE_PAWN = 6
+    CHOOSE_MOVE = 7
+    SWITCH_TURN = 8
+    WIN = 9
     BYE = -1
 
 
@@ -33,6 +38,16 @@ class Commands:
     CHOOSE_GAME_BAUERNSCHACH = "B"
     CHOOSE_FIRST_PLAYER_ME = "M"
     CHOOSE_FIRST_PLAYER_OPPONENT = "P"
+    CHOOSE_OPP_AS_HUMAN = "H"
+    CHOOSE_OPP_AS_MACHINE = "C"
+    CHOOSE_MACHINE_STRATEGY_RANDOM = "R"
+
+
+class CurrentGame:
+    gameChoice = None
+    playerToStartFirst = None
+    boardSize = 4
+    machine = None
 
 
 class App:
@@ -57,6 +72,7 @@ class App:
     loopState = States.CHOOSE_GAME
     currentGameId = None
     feedback = None
+    currentGame = None
     game = None
     history = []
     """Pawn in format A0."""
@@ -82,8 +98,20 @@ class App:
                 if self.loopState == States.CHOOSE_GAME:
                     self.doStepChooseGame()
                     continue
+                elif self.loopState == States.CHOOSE_BOARD_SIZE:
+                    self.do_step_choose_board_size()
+                    continue
+                elif self.loopState == States.CHOOSE_OPP_HUMAN_OR_MACHINE:
+                    self.do_step_choose_opp_human_or_machine()
+                    continue
+                elif self.loopState == States.CHOOSE_MACHINE_STRATEGY:
+                    self.do_step_choose_machine_strategy()
+                    continue
                 elif self.loopState == States.CHOOSE_PLAYER_ORDER:
                     self.do_step_choose_player_order()
+                    continue
+                elif self.loopState == States.START_GAME:
+                    self.do_step_start_game()
                     continue
                 elif self.loopState == States.CHOOSE_PAWN:
                     self.doStepChoosePawn()
@@ -105,7 +133,7 @@ class App:
             bord=[],
             moveHistory=[],
             currentPlayer=None,
-            feedback=self.consumeFeedback(),
+            feedback="",
             question="Hi! Which game would you like to play?",
             options=deepcopy(self.sharedOptions)
         )
@@ -125,14 +153,16 @@ class App:
             return
 
         elif input == Commands.CHOOSE_GAME_ALQUERQUE:
-            self.game = Alquerque()
-            self.loopState = States.CHOOSE_PLAYER_ORDER
+            self.currentGame = CurrentGame()
+            self.currentGame.gameChoice = Games.ALQUERQUE
+            self.loopState = States.CHOOSE_BOARD_SIZE
             self.feedback = "You have chosen to play Alquerque."
             return
 
         elif input == Commands.CHOOSE_GAME_BAUERNSCHACH:
-            self.game = Bauernschach(8)
-            self.loopState = States.CHOOSE_PLAYER_ORDER
+            self.currentGame = CurrentGame()
+            self.currentGame.gameChoice = Games.BAUERNSCHACH
+            self.loopState = States.CHOOSE_BOARD_SIZE
             self.feedback = "You have chosen to play Bauernschach."
             return
 
@@ -165,13 +195,125 @@ class App:
         except:
             return ""
 
+    def do_step_choose_board_size(self):
+        params = ScreenParameters(
+            bord=[],
+            moveHistory=[],
+            currentPlayer=None,
+            feedback="",
+            question="Choose the size of the game board!",
+            options=deepcopy(self.sharedOptions)
+        )
+        params.options.update({
+            "4": "4x4",
+            "5": "5x5",
+            "6": "6x6",
+            "7": "7x7",
+            "8": "8x8"
+        })
+        # TODO: use params!
+        prefix = self.prependFeedback("Choose the size of the game board!")
+        printScreen([], [], getInstructions(prefix, params.options))
+
+        input = self.readInput()
+
+        if input in self.sharedOptions:
+            if input == Commands.QUIT_APP:
+                self.feedback = None
+                self.loopState = States.BYE
+                return
+
+        elif int(input) in range(4, 8):
+            self.currentGame.boardSize = int(input)
+            self.feedback = "You have chosen a board of size " + input + "."
+            self.loopState = States.CHOOSE_OPP_HUMAN_OR_MACHINE
+            return
+
+        else:
+            self.feedback = "Bad input! "
+            return
+
+    def do_step_choose_opp_human_or_machine(self):
+        params = ScreenParameters(
+            bord=[],
+            moveHistory=[],
+            currentPlayer=None,
+            feedback="",
+            question="",
+            options=deepcopy(self.sharedOptions)
+        )
+        params.options.update({
+            Commands.CHOOSE_OPP_AS_HUMAN: "Human",
+            Commands.CHOOSE_OPP_AS_MACHINE: "Machine",
+        })
+
+        # TODO: use params!
+        prefix = self.prependFeedback("Want to play against human or machine?")
+        printScreen([], [], getInstructions(prefix, params.options))
+
+        input = self.readInput()
+
+        if input == Commands.QUIT_APP:
+            self.feedback = None
+            self.loopState = States.BYE
+            return
+
+        elif input == Commands.CHOOSE_OPP_AS_HUMAN:
+            self.currentGame.machine = None
+            self.loopState = States.CHOOSE_PLAYER_ORDER
+            self.feedback = "You have chosen to play against another human."
+            return
+
+        elif input == Commands.CHOOSE_OPP_AS_MACHINE:
+            self.loopState = States.CHOOSE_MACHINE_STRATEGY
+            self.feedback = "You have chosen to play against the machine."
+            return
+
+        else:
+            self.feedback = "Bad input! "
+            return
+
+    def do_step_choose_machine_strategy(self):
+        params = ScreenParameters(
+            bord=[],
+            moveHistory=[],
+            currentPlayer=None,
+            feedback="",
+            question="",
+            options=deepcopy(self.sharedOptions)
+        )
+        params.options.update({
+            Commands.CHOOSE_MACHINE_STRATEGY_RANDOM: "Random",
+        })
+
+        # TODO: use params!
+        prefix = self.prependFeedback("What strategy shall the machine use?")
+        printScreen([], [], getInstructions(prefix, params.options))
+
+        input = self.readInput()
+
+        if input == Commands.QUIT_APP:
+            self.feedback = None
+            self.loopState = States.BYE
+            return
+
+        elif input == Commands.CHOOSE_MACHINE_STRATEGY_RANDOM:
+            self.currentGame.machine = RandomMachine()
+            self.loopState = States.CHOOSE_PLAYER_ORDER
+            self.feedback = "You have chosen the random acting opp."
+            return
+
+        else:
+            self.feedback = "Bad input! "
+            return
+
     def do_step_choose_player_order(self):
         params = ScreenParameters(
             bord=[],
             moveHistory=[],
             currentPlayer=None,
-            feedback=self.consumeFeedback(),
-            question="Hi! Which game would you like to play?",
+            feedback="",
+            question="",
             options=deepcopy(self.sharedOptions)
         )
         params.options.update({
@@ -189,19 +331,32 @@ class App:
             return
 
         elif input == Commands.CHOOSE_FIRST_PLAYER_ME:
-            self.game.start(PLAYER_USER)
-            self.loopState = States.CHOOSE_PAWN
-            self.feedback = self.whosTurnItIs()
+            self.currentGame.playerToStartFirst = Player.USER
+            self.loopState = States.START_GAME
             return
 
         elif input == Commands.CHOOSE_FIRST_PLAYER_OPPONENT:
-            self.game.start(PLAYER_OPP)
-            self.loopState = States.CHOOSE_PAWN
-            self.feedback = self.whosTurnItIs()
+            self.currentGame.playerToStartFirst = Player.OPP
+            self.loopState = States.START_GAME
             return
 
         else:
             self.feedback = "Bad input! "
+            return
+
+    def do_step_start_game(self):
+        playerToStart = self.currentGame.playerToStartFirst
+        boardSize = self.currentGame.boardSize
+
+        if self.currentGame.gameChoice == Games.BAUERNSCHACH:
+            self.game = Bauernschach(playerToStart, boardSize)
+            self.loopState = States.CHOOSE_PAWN
+            self.feedback = self.whosTurnItIs()
+            return
+
+        elif self.currentGame.gameChoice == Games.ALQUERQUE:
+            self.currentGame.gameChoice = Games.BAUERNSCHACH
+            # TODO: not implemented yet!
             return
 
     def doStepChoosePawn(self):
@@ -209,8 +364,8 @@ class App:
             bord=self.game.getBord(),
             moveHistory=self.game.getMoveHistory(),
             currentPlayer=None,
-            feedback=self.consumeFeedback(),
-            question="Hi! Which game would you like to play?",
+            feedback="",
+            question="",
             options=deepcopy(self.sharedOptions)
         )
         params.options.update(self.getChoosableFieldsAsOptions(
@@ -242,7 +397,7 @@ class App:
             moveHistory=self.game.getMoveHistory(),
             currentPlayer=None,
             feedback=self.consumeFeedback(),
-            question="Hi! Which game would you like to play?",
+            question="",
             options=deepcopy(self.sharedOptions)
         )
         pawnField = mapFieldTextToCoordinates(self.selectedPawn)
