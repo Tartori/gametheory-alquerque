@@ -1,58 +1,87 @@
 #!/usr/bin/python3
 
-# TODO: snake case.
-# TODO: do not import *. do "import ..." instead of "from ... import ..."
 
-import sys
 import re
 
-from gui import *
-from input import *
-from bauernschach import *
-from alquerque import *
+from gui import Output, ScreenParameters
+from input import map_field_text_to_coordinates, read_input
+from definitions import Player
+from machine import RandomMachine
+from bauernschach import Bauernschach
+from alquerque import Alquerque
+from copy import deepcopy
 
-ALQUERQUE = 0
-BAUERNSCHACH = 1
 
-# TODO: make Enum!
-STATE_CHOOSE_GAME = 0
-STATE_CHOOSE_PLAYER_ORDER = 1
-STATE_CHOOSE_PAWN = 2
-STATE_CHOOSE_MOVE = 3
-STATE_SWITCH_TURN = 4
-STATE_WIN = 5
-STATE_BYE = -1
+class Games:
+    ALQUERQUE = 0
+    BAUERNSCHACH = 1
 
-CMD_QUIT_APP = "STOP"
-CMD_CHOOSE_GAME_ALQUERQUE = "A"
-CMD_CHOOSE_GAME_BAUERNSCHACH = "B"
-CMD_CHOOSE_FIRST_PLAYER_ME = "ME"
-CMD_CHOOSE_FIRST_PLAYER_OPPONENT = "OPP"
+
+class States:
+    CHOOSE_GAME = 0
+    CHOOSE_BOARD_SIZE = 1
+    CHOOSE_OPP_HUMAN_OR_MACHINE = 2
+    CHOOSE_MACHINE_STRATEGY = 3
+    CHOOSE_PLAYER_ORDER = 4
+    START_GAME = 5
+    CHOOSE_PAWN = 6
+    CHOOSE_MOVE = 7
+    SWITCH_TURN = 8
+    WIN = 9
+    BYE = -1
+
+
+class Commands:
+    QUIT_APP = "X"
+    CHOOSE_GAME_ALQUERQUE = "A"
+    CHOOSE_GAME_BAUERNSCHACH = "B"
+    CHOOSE_FIRST_PLAYER_ME = "M"
+    CHOOSE_FIRST_PLAYER_OPPONENT = "P"
+    CHOOSE_OPP_AS_HUMAN = "H"
+    CHOOSE_OPP_AS_MACHINE = "C"
+    CHOOSE_MACHINE_STRATEGY_RANDOM = "R"
+
+
+class CurrentGame:
+    game = None
+    gameChoice = None
+    playerToStartFirst = None
+    boardSize = 4
+    machine = None
 
 
 class App:
     """
-    Contains the loop of printing to screen, getting user input, and interacting with the game logic.
-    Is agnostic of the specific game (as long as game implements required methods).
+    Contains the loop of printing to screen, getting user input,
+    and interacting with the game logic.
+    Is agnostic of the specific game (as long as game implements
+    required methods).
 
-    Attributes:
-        loopState               Contains the state as in a automaton.
-        feedback                A string containing feedback to be shown to the user when entering the next state.
-        game                    References the game instance that contains all game logic.
-        selectedPawn            Describes the currently selected pawn in format A0.
-        selectedMove            Describes the currently selected move for the selected pawn in format A0.
+    loopState: Contains the state as in a automaton.
+
+    feedback: A string containing feedback to be shown to the user when
+    entering the next state.
+
+    game: References the game instance that contains all game logic.
+
+    selectedPawn: Describes the currently selected pawn in format A0.
+
+    selectedMove: Describes the currently selected move for the selected pawn
+    in format A0.
     """
-    loopState = STATE_CHOOSE_GAME
+    loopState = States.CHOOSE_GAME
     currentGameId = None
     feedback = None
+    currentGame = None
     game = None
     history = []
     """Pawn in format A0."""
     selectedPawn = None
     selectedMove = None
+    gui = Output()
 
     sharedOptions = {
-        CMD_QUIT_APP: "stops app",
+        Commands.QUIT_APP: "stops app",
     }
 
     def __init__(self):
@@ -67,60 +96,67 @@ class App:
         """
         while True:
             try:
-                if self.loopState == STATE_CHOOSE_GAME:
-                    self.doStepChooseGame()
+                if self.loopState == States.CHOOSE_GAME:
+                    self._do_step_choose_game()
                     continue
-                elif self.loopState == STATE_CHOOSE_PLAYER_ORDER:
-                    self.do_step_choose_player_order()
+                elif self.loopState == States.CHOOSE_BOARD_SIZE:
+                    self._do_step_choose_board_size()
                     continue
-                elif self.loopState == STATE_CHOOSE_PAWN:
-                    self.doStepChoosePawn()
+                elif self.loopState == States.CHOOSE_OPP_HUMAN_OR_MACHINE:
+                    self._do_step_choose_opp_human_or_machine()
                     continue
-                elif self.loopState == STATE_CHOOSE_MOVE:
-                    self.doStepChooseMove()
+                elif self.loopState == States.CHOOSE_MACHINE_STRATEGY:
+                    self._do_step_choose_machine_strategy()
                     continue
-                elif self.loopState == STATE_WIN:
-                    self.doStepWin()
+                elif self.loopState == States.CHOOSE_PLAYER_ORDER:
+                    self._do_step_choose_player_order()
                     continue
-                elif self.loopState == STATE_BYE:
-                    self.doStepBye()
+                elif self.loopState == States.START_GAME:
+                    self._do_step_start_game()
+                    continue
+                elif self.loopState == States.CHOOSE_PAWN:
+                    self._do_step_choose_pawn()
+                    continue
+                elif self.loopState == States.CHOOSE_MOVE:
+                    self._do_step_choose_move()
+                    continue
+                elif self.loopState == States.WIN:
+                    self._do_step_win()
+                    continue
+                elif self.loopState == States.BYE:
+                    self._do_step_bye()
                     break
             except:
                 pass
 
-    def doStepChooseGame(self):
-        params = ScreenParameters(
-            bord=[],
-            moveHistory=[],
-            currentPlayer=None,
-            feedback=self.consumeFeedback(),
-            question="Hi! Which game would you like to play?",
-            options=deepcopy(self.sharedOptions)
-        )
+    def _do_step_choose_game(self):
+        params = self._prepare_values_to_be_rendered()
+        params.instruction = "Choose which game to play!"
         params.options.update({
-            CMD_CHOOSE_GAME_ALQUERQUE: "play Alquerque",
-            CMD_CHOOSE_GAME_BAUERNSCHACH: "play Bauernschach",
+            Commands.CHOOSE_GAME_ALQUERQUE: "play Alquerque",
+            Commands.CHOOSE_GAME_BAUERNSCHACH: "play Bauernschach",
         })
 
-        prefix = self.prependFeedback("Hi! Which game would you like to play?")
-        printScreen([], [], getInstructions(prefix, params.options))
+        self.gui.print_screen(params)
 
-        input = self.readInput()
+        input = read_input()
 
-        if input == CMD_QUIT_APP:
+        if input == Commands.QUIT_APP:
             self.feedback = None
-            self.loopState = STATE_BYE
+            self.loopState = States.BYE
             return
 
-        elif input == CMD_CHOOSE_GAME_ALQUERQUE:
-            self.game = Alquerque()
-            self.loopState = STATE_CHOOSE_PLAYER_ORDER
+        elif input == Commands.CHOOSE_GAME_ALQUERQUE:
+            self.currentGame = CurrentGame()
+            self.currentGame.gameChoice = Games.ALQUERQUE
+            self.loopState = States.CHOOSE_BOARD_SIZE
             self.feedback = "You have chosen to play Alquerque."
             return
 
-        elif input == CMD_CHOOSE_GAME_BAUERNSCHACH:
-            self.game = Bauernschach(8)
-            self.loopState = STATE_CHOOSE_PLAYER_ORDER
+        elif input == Commands.CHOOSE_GAME_BAUERNSCHACH:
+            self.currentGame = CurrentGame()
+            self.currentGame.gameChoice = Games.BAUERNSCHACH
+            self.loopState = States.CHOOSE_BOARD_SIZE
             self.feedback = "You have chosen to play Bauernschach."
             return
 
@@ -128,95 +164,155 @@ class App:
             self.feedback = "Bad input! "
             return
 
-    def prependFeedback(self, prefix):
-        if not self.feedback is None and len(self.feedback) > 0:
-            prefix = self.feedback + " " + prefix
-            self.feedback = None
-        return prefix
-
-    def consumeFeedback(self):
-        if not self.feedback is None:
-            return self.feedback
-            self.feedback = None
-        return None
-
-    def readInput(self):
-        """
-        Gets the user input. Cleans out any line breaks and ensures is in upper case.
-        return: String of user input.
-        """
-        try:
-            # Remove end of line char.
-            return sys.stdin.readline().strip().upper()
-        except:
-            return ""
-
-    def do_step_choose_player_order(self):
-        params = ScreenParameters(
-            bord=[],
-            moveHistory=[],
-            currentPlayer=None,
-            feedback=self.consumeFeedback(),
-            question="Hi! Which game would you like to play?",
-            options=deepcopy(self.sharedOptions)
-        )
+    def _do_step_choose_board_size(self):
+        params = self._prepare_values_to_be_rendered()
+        params.instruction = "Choose the size of the game board!"
         params.options.update({
-            CMD_CHOOSE_FIRST_PLAYER_ME: "if you want to start",
-            CMD_CHOOSE_FIRST_PLAYER_OPPONENT: "if opponent shall start",
+            "4": "4x4",
+            "5": "5x5",
+            "6": "6x6",
+            "7": "7x7",
+            "8": "8x8"
         })
-        prefix = self.prependFeedback("Which player shall start first?")
-        printScreen([], [], getInstructions(prefix, params.options))
+        self.gui.print_screen(params)
 
-        input = self.readInput()
+        input = read_input()
 
-        if input == CMD_QUIT_APP:
-            self.feedback = None
-            self.loopState = STATE_BYE
-            return
+        if input in self.sharedOptions:
+            if input == Commands.QUIT_APP:
+                self.feedback = None
+                self.loopState = States.BYE
+                return
 
-        elif input == CMD_CHOOSE_FIRST_PLAYER_ME:
-            self.game.setFirstPlayer(PLAYER_USER)
-            self.game.start()
-            self.loopState = STATE_CHOOSE_PAWN
-            self.feedback = self.whosTurnItIs()
-            return
-
-        elif input == CMD_CHOOSE_FIRST_PLAYER_OPPONENT:
-            self.game.setFirstPlayer(PLAYER_OPP)
-            self.game.start()
-            self.loopState = STATE_CHOOSE_PAWN
-            self.feedback = self.whosTurnItIs()
+        elif int(input) in range(4, 8):
+            self.currentGame.boardSize = int(input)
+            self.feedback = "You have chosen a board of size " + input + "."
+            self.loopState = States.CHOOSE_OPP_HUMAN_OR_MACHINE
             return
 
         else:
             self.feedback = "Bad input! "
             return
 
-    def doStepChoosePawn(self):
-        params = ScreenParameters(
-            bord=self.game.getBord(),
-            moveHistory=self.game.getMoveHistory(),
-            currentPlayer=None,
-            feedback=self.consumeFeedback(),
-            question="Hi! Which game would you like to play?",
-            options=deepcopy(self.sharedOptions)
-        )
-        params.options.update(self.getChoosableFieldsAsOptions(
-            self.game.getMovablePawns()))
-        prefix = self.prependFeedback("Which pawn do you want to move? ")
-        printScreen(self.game.gamestate, self.game.getMoveHistory(),
-                    getInstructions(prefix, params.options))
+    def _do_step_choose_opp_human_or_machine(self):
+        params = self._prepare_values_to_be_rendered()
+        params.instruction = "Want to play against human or machine?"
+        params.options.update({
+            Commands.CHOOSE_OPP_AS_HUMAN: "Human",
+            Commands.CHOOSE_OPP_AS_MACHINE: "Machine",
+        })
+        self.gui.print_screen(params)
 
-        input = self.readInput()
+        input = read_input()
 
-        if input == CMD_QUIT_APP:
+        if input == Commands.QUIT_APP:
             self.feedback = None
-            self.loopState = STATE_BYE
+            self.loopState = States.BYE
+            return
+
+        elif input == Commands.CHOOSE_OPP_AS_HUMAN:
+            self.currentGame.machine = None
+            self.loopState = States.CHOOSE_PLAYER_ORDER
+            self.feedback = "You have chosen to play against another human."
+            return
+
+        elif input == Commands.CHOOSE_OPP_AS_MACHINE:
+            self.loopState = States.CHOOSE_MACHINE_STRATEGY
+            self.feedback = "You have chosen to play against the machine."
+            return
+
+        else:
+            self.feedback = "Bad input! "
+            return
+
+    def _do_step_choose_machine_strategy(self):
+        params = self._prepare_values_to_be_rendered()
+        params.instruction = "What strategy shall the machine use?"
+        params.options.update({
+            Commands.CHOOSE_MACHINE_STRATEGY_RANDOM: "Random",
+        })
+        self.gui.print_screen(params)
+
+        input = read_input()
+
+        if input == Commands.QUIT_APP:
+            self.feedback = None
+            self.loopState = States.BYE
+            return
+
+        elif input == Commands.CHOOSE_MACHINE_STRATEGY_RANDOM:
+            self.currentGame.machine = RandomMachine()
+            self.loopState = States.CHOOSE_PLAYER_ORDER
+            self.feedback = "You have chosen the random acting opp."
+            return
+
+        else:
+            self.feedback = "Bad input! "
+            return
+
+    def _do_step_choose_player_order(self):
+        params = self._prepare_values_to_be_rendered()
+        params.instruction = "Which player shall start first?"
+        params.options.update({
+            Commands.CHOOSE_FIRST_PLAYER_ME: "if you want to start",
+            Commands.CHOOSE_FIRST_PLAYER_OPPONENT: "if opponent shall start",
+        })
+        self.gui.print_screen(params)
+
+        input = read_input()
+
+        if input == Commands.QUIT_APP:
+            self.feedback = None
+            self.loopState = States.BYE
+            return
+
+        elif input == Commands.CHOOSE_FIRST_PLAYER_ME:
+            self.currentGame.playerToStartFirst = Player.USER
+            self.loopState = States.START_GAME
+            return
+
+        elif input == Commands.CHOOSE_FIRST_PLAYER_OPPONENT:
+            self.currentGame.playerToStartFirst = Player.OPP
+            self.loopState = States.START_GAME
+            return
+
+        else:
+            self.feedback = "Bad input! "
+            return
+
+    def _do_step_start_game(self):
+        playerToStart = self.currentGame.playerToStartFirst
+        boardSize = self.currentGame.boardSize
+
+        if self.currentGame.gameChoice == Games.BAUERNSCHACH:
+            self.currentGame.game = Bauernschach(playerToStart, boardSize)
+            self.loopState = States.CHOOSE_PAWN
+            self.feedback = self._whos_turn_it_is()
+            return
+
+        elif self.currentGame.gameChoice == Games.ALQUERQUE:
+            self.currentGame.gameChoice = Games.BAUERNSCHACH
+            # TODO: not implemented yet!
+            return
+
+    def _do_step_choose_pawn(self):
+        params = self._prepare_values_to_be_rendered()
+        params.instruction = "Which pawn do you want to move? "
+        # TODO: pass fields
+        params.options.update(self._get_choosable_fields_as_options(
+            self.currentGame.game.get_movable_pawns()))
+        self.gui.print_screen(params)
+
+        input = read_input()
+
+        if input == Commands.QUIT_APP:
+            self.feedback = None
+            self.loopState = States.BYE
             return
 
         elif input in params.options:
             self.selectedPawn = input
-            self.loopState = STATE_CHOOSE_MOVE
+            self.loopState = States.CHOOSE_MOVE
             self.feedback = "You want to move pawn " + input + ". "
             return
 
@@ -224,74 +320,85 @@ class App:
             self.feedback = "Bad input! "
             return
 
-    def doStepChooseMove(self):
-        params = ScreenParameters(
-            bord=self.game.getBord(),
-            moveHistory=self.game.getMoveHistory(),
-            currentPlayer=None,
-            feedback=self.consumeFeedback(),
-            question="Hi! Which game would you like to play?",
-            options=deepcopy(self.sharedOptions)
-        )
-        pawnField = mapFieldTextToCoordinates(self.selectedPawn)
-        params.options.update(self.getChoosableFieldsAsOptions(
-            self.game.getMovesForPawn(pawnField)))
-        prefix = self.prependFeedback("Where would you like to move the pawn?")
-        printScreen(self.game.getBordWithMoves(
-            pawnField), self.game.getMoveHistory(), getInstructions(prefix, params.options))
+    def _do_step_choose_move(self):
+        params = self._prepare_values_to_be_rendered()
+        params.instruction = "Where would you like to move the pawn?"
+        pawnField = map_field_text_to_coordinates(self.selectedPawn)
+        params.options.update(self._get_choosable_fields_as_options(
+            self.currentGame.game.get_moves_for_pawn(pawnField)))
+        params.board = self.currentGame.game.get_bord_with_moves(pawnField)
+        self.gui.print_screen(params)
 
-        input = self.readInput()
+        input = read_input()
 
-        if input == CMD_QUIT_APP:
+        if input == Commands.QUIT_APP:
             self.feedback = None
-            self.loopState = STATE_BYE
+            self.loopState = States.BYE
             return
 
         elif input in params.options:
             self.selectedMove = input
-            pawn = mapFieldTextToCoordinates(self.selectedPawn)
-            move = mapFieldTextToCoordinates(input)
-            self.game.doMove(pawn, move)
-            self.history.append("Player " + str(self.game.currentPlayer) +
+            pawn = map_field_text_to_coordinates(self.selectedPawn)
+            move = map_field_text_to_coordinates(input)
+            self.currentGame.game.do_move(pawn, move)
+            self.history.append("Player " + str(self.currentGame
+                                                .game.currentPlayer) +
                                 " moved " + self.selectedPawn + " to " + input)
 
-            if self.game.isTerminal():
-                self.loopState = STATE_WIN
+            if self.currentGame.game.is_terminal():
+                self.loopState = States.WIN
                 self.feedback = "Game finished. "
                 self.selectedMove = None
                 self.selectedPawn = None
                 return
             else:
-                self.game.toNextTurn()
-                self.loopState = STATE_CHOOSE_PAWN
+                self.currentGame.game.to_next_turn()
+                self.loopState = States.CHOOSE_PAWN
                 return
 
         else:
             self.feedback = "Bad input! "
             return
 
-    def doStepBye(self):
-        printScreen([], [], getInstructions("Bye bye!", {}))
+    def _do_step_bye(self):
+        params = self._prepare_values_to_be_rendered()
+        params.instruction = "Bye bye!"
+        self.gui.print_screen(params)
         return
 
-    def doStepWin(self):
-        if self.game.Player1ToWin():
+    def _do_step_win(self):
+        if self.currentGame.game.player_1_to_win():
             self.feedback = "You have won. Congrats! "
         else:
             self.feedback = "Opponent has won. Better luck next time. "
+        self.loopState = States.CHOOSE_GAME
 
-    def whosTurnItIs(self):
-        if self.game.currentPlayer == PLAYER_USER:
+    def _whos_turn_it_is(self):
+        if self.currentGame.game.currentPlayer == Player.USER:
             return "Your turn! "
         else:
             return "Opp's turn! "
 
-    def getChoosableFieldsAsOptions(self, fields):
-        fieldNames = mapFieldsCoordinatesToText(fields)
+    def _get_choosable_fields_as_options(self, fields):
+        fieldNames = self.gui.map_fields_coordinates_to_text(fields)
         options = {}
         for f in fieldNames:
             options[f] = ""
         return options
+
+    def _prepare_values_to_be_rendered(self):
+        values = ScreenParameters()
+        if self.currentGame is not None and \
+                self.currentGame.game is not None:
+            values.game = self.currentGame.game
+            values.board = self.currentGame.game.get_bord()
+            values.moveHistory = self.currentGame.game.get_move_history()
+        # TODO: add player
+        if self.feedback is not None:
+            values.feedback = self.feedback
+            self.feedback = None
+        values.options = deepcopy(self.sharedOptions)
+        return values
 
 
 # Run the application.

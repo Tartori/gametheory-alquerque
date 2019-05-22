@@ -1,7 +1,5 @@
 #!/usr/bin/python3
 
-from definitions import *
-
 
 class Alquerque:
 

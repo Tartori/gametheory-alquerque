@@ -1,22 +1,8 @@
 #!/usr/bin/python3
-
 import sys
-import re
 
-demooptions = {
-    "a1": "select coin on a1",
-    "stop": "quit the game"
-}
 
-def getInstructions(prefix, options = {}):
-    instruction = prefix
-    if (len(options) > 0):
-        instruction = instruction + "\nChoose: "
-        for key, value in options.items():
-            instruction = instruction + "  [" + key + "]: " + value
-    return instruction
-
-def mapFieldTextToCoordinates(field):
+def map_field_text_to_coordinates(field):
     """
     Converts a string of two chars to coordinates.
     field: e.g. "A2" or "a2".
@@ -28,9 +14,15 @@ def mapFieldTextToCoordinates(field):
     col = int(field[1])
     return (row, col)
 
-def isAlquerque(input):
-    if len(input) == 1:
-        p = re.compile('[A-Ea-e][0-4]')
-        if p.match(input) is not None:
-            return True
-    return False
+
+def read_input():
+    """
+    Gets the user input. Cleans out any line breaks
+    and ensures is in upper case.
+    return: String of user input.
+    """
+    try:
+        # Remove end of line char.
+        return sys.stdin.readline().strip().upper()
+    except:
+        return ""
