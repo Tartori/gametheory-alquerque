@@ -90,7 +90,8 @@ class App:
     def loop(self):
         """
         The main method of the whole application.
-        Contains the loop of the user interacting with the application.
+        Contains the loop of the user interacting with the application
+        and the game loop.
 
         return: void.
         """
@@ -130,6 +131,9 @@ class App:
                 pass
 
     def _do_step_choose_game(self):
+        """
+        The (human) user chooses which game to play.
+        """
         params = self._prepare_values_to_be_rendered()
         params.instruction = "Choose which game to play!"
         params.options.update({
@@ -165,6 +169,9 @@ class App:
             return
 
     def _do_step_choose_board_size(self):
+        """
+        The (human) user chooses the width and height of the game board.
+        """
         params = self._prepare_values_to_be_rendered()
         params.instruction = "Choose the size of the game board!"
         params.options.update({
@@ -195,6 +202,10 @@ class App:
             return
 
     def _do_step_choose_opp_human_or_machine(self):
+        """
+        The (human) user chooses whether he is going to play
+        against another human or against the machine.
+        """
         params = self._prepare_values_to_be_rendered()
         params.instruction = "Want to play against human or machine?"
         params.options.update({
@@ -226,6 +237,10 @@ class App:
             return
 
     def _do_step_choose_machine_strategy(self):
+        """
+        If the opponent is a machine, the (human) user chooses
+        what strategy that machine is going to use.
+        """
         params = self._prepare_values_to_be_rendered()
         params.instruction = "What strategy shall the machine use?"
         params.options.update({
@@ -251,6 +266,9 @@ class App:
             return
 
     def _do_step_choose_player_order(self):
+        """
+        The (human) user chooses whether he or his opponent is going to start.
+        """
         params = self._prepare_values_to_be_rendered()
         params.instruction = "Which player shall start first?"
         params.options.update({
@@ -281,6 +299,9 @@ class App:
             return
 
     def _do_step_start_game(self):
+        """
+        This starts the actual game loop based on the previous configuration.
+        """
         playerToStart = self.currentGame.playerToStartFirst
         boardSize = self.currentGame.boardSize
 
@@ -296,6 +317,11 @@ class App:
             return
 
     def _do_step_choose_pawn(self):
+        """
+        Part of the game loop.
+        The current player (human or machine) chooses
+        which pawn to move.
+        """
         params = self._prepare_values_to_be_rendered()
         params.instruction = "Which pawn do you want to move? "
         # TODO: pass fields
@@ -321,6 +347,11 @@ class App:
             return
 
     def _do_step_choose_move(self):
+        """
+        Part of the game loop.
+        The current player (human or machine) chooses
+        where to move the chosen pawn to.
+        """
         params = self._prepare_values_to_be_rendered()
         params.instruction = "Where would you like to move the pawn?"
         pawnField = map_field_text_to_coordinates(self.selectedPawn)
@@ -361,12 +392,18 @@ class App:
             return
 
     def _do_step_bye(self):
+        """
+        The user has chosen to quit the application.
+        """
         params = self._prepare_values_to_be_rendered()
         params.instruction = "Bye bye!"
         self.gui.print_screen(params)
         return
 
     def _do_step_win(self):
+        """
+        Termination of the game loop.
+        """
         if self.currentGame.game.player_1_to_win():
             self.feedback = "You have won. Congrats! "
         else:
@@ -374,12 +411,18 @@ class App:
         self.loopState = States.CHOOSE_GAME
 
     def _whos_turn_it_is(self):
+        """
+        Helper function to print whos turn it is.
+        """
         if self.currentGame.game.currentPlayer == Player.USER:
             return "Your turn! "
         else:
             return "Opp's turn! "
 
     def _get_choosable_fields_as_options(self, fields):
+        """
+        Helper function that converts fields to options.
+        """
         fieldNames = self.gui.map_fields_coordinates_to_text(fields)
         options = {}
         for f in fieldNames:
@@ -387,6 +430,10 @@ class App:
         return options
 
     def _prepare_values_to_be_rendered(self):
+        """
+        Helper function that initializes a new screen parameter object
+        with default values.
+        """
         values = ScreenParameters()
         if self.currentGame is not None and \
                 self.currentGame.game is not None:
