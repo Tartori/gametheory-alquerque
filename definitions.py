@@ -1,5 +1,24 @@
 #!/usr/bin/python3
 
+"""
+You can either create a Field by giving row and column
+>>> Field(row=1,column=2)
+Field(row=1,column=2,)
+
+Or by entering a Text
+>>> Field(text="B3")
+Field(row=1,column=3,)
+
+You need to do either or else you'll get an exception
+>>> Field()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/Users/julian/school/gametheory-alquerque/definitions.py", line 59, in __init__
+    raise Exception("Pass either col and row or text.")
+Exception: Pass either col and row or text.
+
+"""
+import re
 import unittest
 
 
@@ -23,15 +42,7 @@ class Field:
     - text (text), e.g. ("B2")
     """
 
-    row = None
-    col = None
-    text = None
-    rowText = None
-    colText = None
-    coords = None
-    value = None
-
-    def __init__(self, *args):
+    def __init__(self, row=-1, column=-1, text=""):
         """
         You can use either set of arguments:
         - Field(row, col) where row and col are integers starting at 0.
@@ -40,45 +51,28 @@ class Field:
             - second char is number representing the col
         """
         # Create Field from text, e.g. 'B2'.
-        if (len(args) == 1):
-            self.text = args[0]
-            if not len(self.text) == 2:
+        if (text):
+            if not re.match('^([a-zA-Z]){1}[0-9]{1}$', text):
                 raise Exception(
                     "Field must be specified by two chars, e.g. 'A0'.")
-            self.rowText = self.text[0].upper()
-            self.colText = self.text[1]
-            self.row = ord(self.rowText) - 65
-            self.col = int(self.colText)
+            self.row = ord(text[0]) - 65
+            self.column = int(text[1])
         # Create Field from row and col indices.
-        elif (len(args) == 2):
-            self.row = args[0]
-            self.col = args[1]
-            self.text = chr(self.row + 97).upper() + str(self.col)
-            self.rowText = self.text[0]
-            self.colText = self.text[1]
+        elif (row >= 0 and column >= 0):
+            self.row = row
+            self.column = column
         else:
             raise Exception("Pass either col and row or text.")
 
-        self.coords = (self.row, self.col)
+        self.coords = (self.row, self.column)
+
+    def __repr__(self):
+        return ('Field('
+                f'row={self.row},'
+                f'column={self.column},'
+                ')')
 
 
-class TestField(unittest.TestCase):
-    def test__init__with_indices(self):
-        cases = [
-            [0, 0, "A0", "A", "0", (0, 0)],
-            [1, 2, "B2", "B", "2", (1, 2)],
-        ]
-
-        for params in cases:
-
-            actual = Field(params[0], params[1])
-            self.assertEqual(actual.row, params[0])
-            self.assertEqual(actual.col, params[1])
-            self.assertEqual(actual.text, params[2])
-            self.assertEqual(actual.rowText, params[3])
-            self.assertEqual(actual.colText, params[4])
-            self.assertEqual(actual.coords, params[5])
-
-
-if __name__ == "__main__":
-    unittest.main()
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
