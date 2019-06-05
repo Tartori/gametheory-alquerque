@@ -24,10 +24,11 @@ class States:
     CHOOSE_MACHINE_STRATEGY = 3
     CHOOSE_PLAYER_ORDER = 4
     START_GAME = 5
-    CHOOSE_PAWN = 6
-    CHOOSE_MOVE = 7
-    SWITCH_TURN = 8
-    WIN = 9
+    TAKE_TURN = 6
+    CHOOSE_PAWN = 7
+    CHOOSE_MOVE = 8
+    SWITCH_TURN = 9
+    WIN = 10
     BYE = -1
 
 
@@ -48,6 +49,182 @@ class CurrentGame:
     playerToStartFirst = None
     boardSize = 4
     machine = None
+    actors = {
+        Player.USER: None,
+        Player.OPP: None
+    }
+    currentActor = None
+    waitingActor = None
+
+
+class BaseActor:
+    """
+    Defines the common functionality that all types of player
+    share. An actor is anyone who interacts with the gui and the game.
+    Can be a human or machine player.
+    """
+
+    _state = None
+    _name = None
+    _game = None
+    _history = None
+    _gui = None
+    # __is_first_player = None
+    _feedback = None
+    _sharedOptions = {
+        Commands.QUIT_APP: "stops app",
+    }
+
+    def __init__(self, name, game, gui, history):
+        self._name = name
+        self._game = game
+        self._gui = gui
+        # self.__is_first_player = isFirstPlayer
+        self._history = history
+
+    def take_turn(self):
+        pass
+
+    def _prepare_values_to_be_rendered(self):
+        """
+        Helper function that initializes a new screen parameter object
+        with default values.
+        """
+        values = ScreenParameters()
+        if self._game is not None:
+            values.game = self._game
+            values.board = self._game.get_bord()
+            values.moveHistory = self._game.get_move_history()
+        # TODO: add player
+        if self._feedback is not None:
+            values.feedback = self._name + " " + self._feedback
+            self.feedback = None
+        values.options = deepcopy(self._sharedOptions)
+        return values
+
+    def _get_choosable_fields_as_options(self):
+        """
+        Helper function that converts fields to options.
+        """
+        fields = self._game.get_movable_pawns()
+        fieldNames = self._gui.map_fields_coordinates_to_text(fields)
+        options = {}
+        for f in fieldNames:
+            options[f] = ""
+        return options
+
+
+class HumanActor(BaseActor):
+
+    __selected_pawn = None
+    __selected_move = None
+
+    def __init__(self, name, game, gui, history):
+        super().__init__(name, game, gui, history)
+        self._state = States.CHOOSE_PAWN
+
+    def take_turn(self):
+        """
+        The loop of the controller for the human actor.
+        Contains the loop of the user interacting with the application.
+
+        return: void.
+        """
+
+        self._state = States.CHOOSE_PAWN
+
+        while True:
+            try:
+                if self._state == States.CHOOSE_PAWN:
+                    self.__do_step_choose_pawn()
+                    continue
+                elif self._state == States.CHOOSE_MOVE:
+                    self.__do_step_choose_move()
+                    continue
+                else:
+                    break
+            except:
+                pass
+
+    def __do_step_choose_pawn(self):
+        """
+        Part of the game loop, if the human moves.
+        The current human player chooses which pawn to move.
+        """
+        params = self._prepare_values_to_be_rendered()
+        params.instruction = self._name + " Which pawn do you want to move? "
+        params.options.update(self._get_choosable_fields_as_options())
+        self._gui.print_screen(params)
+
+        input = read_input()
+
+        if input == Commands.QUIT_APP:
+            self._feedback = None
+            self._state = States.BYE
+            return
+
+        elif input in params.options:
+            self._selected_pawn = input
+            self._state = States.CHOOSE_MOVE
+            self._feedback = "You want to move pawn " + input + ". "
+            return
+
+        else:
+            self._feedback = "Bad input! "
+            return
+
+    def __do_step_choose_move(self):
+        """
+        Part of the game loop.
+        The current player (human or machine) chooses
+        where to move the chosen pawn to.
+        """
+        params = self._prepare_values_to_be_rendered()
+        params.instruction = self._name + " Where would you like to move the pawn?"
+        pawnField = map_field_text_to_coordinates(self._selected_pawn)
+        params.options.update(self._get_choosable_fields_as_options())
+        params.board = self._game.get_bord_with_moves(pawnField)
+        self._gui.print_screen(params)
+
+        input = read_input()
+
+        if input == Commands.QUIT_APP:
+            self._feedback = None
+            self._state = States.BYE
+            return
+
+        elif input in params.options:
+            self._selected_move = input
+            pawn = map_field_text_to_coordinates(self._selected_pawn)
+            move = map_field_text_to_coordinates(self._selected_move)
+            self._game.do_move(pawn, move)
+            self._history.append("Player " + str(self._game.currentPlayer) +
+                                 " moved " + self._selected_pawn + " to " +
+                                 self._selected_move)
+
+            if self._game.is_terminal():
+                self._state = States.WIN
+                self._feedback = "Game finished. "
+                self._selected_move = None
+                self._selected_pawn = None
+                return
+            else:
+                self._game.to_next_turn()
+                self._state = States.TAKE_TURN
+                return
+
+        else:
+            self._feedback = "Bad input! "
+            return
+
+
+class MachineActorRandom(BaseActor):
+
+    def __init__(self, name, game, gui, history):
+        super().__init__(name, game, gui, history)
+
+    def take_turn(self):
+        pass
 
 
 class App:
@@ -79,6 +256,8 @@ class App:
     selectedPawn = None
     selectedMove = None
     gui = Output()
+    _player_one = None
+    _player_two = None
 
     sharedOptions = {
         Commands.QUIT_APP: "stops app",
@@ -115,11 +294,8 @@ class App:
                 elif self.loopState == States.START_GAME:
                     self._do_step_start_game()
                     continue
-                elif self.loopState == States.CHOOSE_PAWN:
-                    self._do_step_choose_pawn()
-                    continue
-                elif self.loopState == States.CHOOSE_MOVE:
-                    self._do_step_choose_move()
+                elif self.loopState == States.TAKE_TURN:
+                    self.__do_step_take_turn()
                     continue
                 elif self.loopState == States.WIN:
                     self._do_step_win()
@@ -307,8 +483,18 @@ class App:
 
         if self.currentGame.gameChoice == Games.BAUERNSCHACH:
             self.currentGame.game = Bauernschach(playerToStart, boardSize)
-            self.loopState = States.CHOOSE_PAWN
-            self.feedback = self._whos_turn_it_is()
+            self.loopState = States.TAKE_TURN
+            # self.feedback = self._whos_turn_it_is()
+            self._player_user = HumanActor(
+                "Player User", self.currentGame.game, self.gui, self.history)
+            self._player_opp = HumanActor(
+                "Player Opp", self.currentGame.game, self.gui, self.history)
+            if (self.currentGame.playerToStartFirst == Player.USER):
+                self.currentGame.currentActor = self._player_user
+                self.currentGame.waitingActor = self._player_opp
+            else:
+                self.currentGame.currentActor = self._player_opp
+                self.currentGame.waitingActor = self._player_user
             return
 
         elif self.currentGame.gameChoice == Games.ALQUERQUE:
@@ -316,80 +502,17 @@ class App:
             # TODO: not implemented yet!
             return
 
-    def _do_step_choose_pawn(self):
+    def __do_step_take_turn(self):
         """
-        Part of the game loop.
-        The current player (human or machine) chooses
-        which pawn to move.
+
         """
-        params = self._prepare_values_to_be_rendered()
-        params.instruction = "Which pawn do you want to move? "
-        # TODO: pass fields
-        params.options.update(self._get_choosable_fields_as_options(
-            self.currentGame.game.get_movable_pawns()))
-        self.gui.print_screen(params)
+        # TODO: get the propper actor!! Currently only human actor.
+        self.currentGame.currentActor.take_turn()
+        temp = self.currentGame.currentActor
 
-        input = read_input()
-
-        if input == Commands.QUIT_APP:
-            self.feedback = None
-            self.loopState = States.BYE
-            return
-
-        elif input in params.options:
-            self.selectedPawn = input
-            self.loopState = States.CHOOSE_MOVE
-            self.feedback = "You want to move pawn " + input + ". "
-            return
-
-        else:
-            self.feedback = "Bad input! "
-            return
-
-    def _do_step_choose_move(self):
-        """
-        Part of the game loop.
-        The current player (human or machine) chooses
-        where to move the chosen pawn to.
-        """
-        params = self._prepare_values_to_be_rendered()
-        params.instruction = "Where would you like to move the pawn?"
-        pawnField = map_field_text_to_coordinates(self.selectedPawn)
-        params.options.update(self._get_choosable_fields_as_options(
-            self.currentGame.game.get_moves_for_pawn(pawnField)))
-        params.board = self.currentGame.game.get_bord_with_moves(pawnField)
-        self.gui.print_screen(params)
-
-        input = read_input()
-
-        if input == Commands.QUIT_APP:
-            self.feedback = None
-            self.loopState = States.BYE
-            return
-
-        elif input in params.options:
-            self.selectedMove = input
-            pawn = map_field_text_to_coordinates(self.selectedPawn)
-            move = map_field_text_to_coordinates(input)
-            self.currentGame.game.do_move(pawn, move)
-            self.history.append("Player " + str(self.currentGame
-                                                .game.currentPlayer) +
-                                " moved " + self.selectedPawn + " to " + input)
-
-            if self.currentGame.game.is_terminal():
-                self.loopState = States.WIN
-                self.feedback = "Game finished. "
-                self.selectedMove = None
-                self.selectedPawn = None
-                return
-            else:
-                self.currentGame.game.to_next_turn()
-                self.loopState = States.CHOOSE_PAWN
-                return
-
-        else:
-            self.feedback = "Bad input! "
-            return
+        # Switch turn
+        self.currentGame.currentActor = self.currentGame.waitingActor
+        self.currentGame.waitingActor = temp
 
     def _do_step_bye(self):
         """
@@ -418,16 +541,6 @@ class App:
             return "Your turn! "
         else:
             return "Opp's turn! "
-
-    def _get_choosable_fields_as_options(self, fields):
-        """
-        Helper function that converts fields to options.
-        """
-        fieldNames = self.gui.map_fields_coordinates_to_text(fields)
-        options = {}
-        for f in fieldNames:
-            options[f] = ""
-        return options
 
     def _prepare_values_to_be_rendered(self):
         """

@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from definitions import Field, Player, FieldValue
+from definitions import Player, FieldValue
 from copy import deepcopy
 
 
