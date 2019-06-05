@@ -97,7 +97,7 @@ class BaseActor:
             values.moveHistory = self._game.get_move_history()
         # TODO: add player
         if self._feedback is not None:
-            values.feedback = self._name + " " + self._feedback
+            values.feedback = self._feedback
             self.feedback = None
         values.options = deepcopy(self._sharedOptions)
         return values
@@ -152,7 +152,8 @@ class HumanActor(BaseActor):
         The current human player chooses which pawn to move.
         """
         params = self._prepare_values_to_be_rendered()
-        params.instruction = self._name + " Which pawn do you want to move? "
+        params.instruction = "Which pawn do you want to move? "
+        params.player = self._name
         params.options.update(self._get_choosable_fields_as_options())
         self._gui.print_screen(params)
 
@@ -180,7 +181,8 @@ class HumanActor(BaseActor):
         where to move the chosen pawn to.
         """
         params = self._prepare_values_to_be_rendered()
-        params.instruction = self._name + " Where would you like to move the pawn?"
+        params.player = self._name
+        params.instruction = "Where would you like to move the pawn?"
         pawnField = map_field_text_to_coordinates(self._selected_pawn)
         params.options.update(self._get_choosable_fields_as_options())
         params.board = self._game.get_bord_with_moves(pawnField)
