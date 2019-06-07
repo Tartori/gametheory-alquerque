@@ -25,11 +25,7 @@ class MachineRandomActor(BaseActor):
         history_text = "Player " + self._name + " moved " + \
             pawnText + " to " + moveText
         self._state.game.history.append(history_text)
+        self._state.feedback = history_text
 
-        if self._state.game.engine.is_terminal():
-            self._state = States.WIN
-            self._state.feedback += " Game finished. "
-            return
-        else:
-            self._state.game.engine.to_next_turn()
-            return
+        self._state.action = States.TAKE_TURN
+        return
