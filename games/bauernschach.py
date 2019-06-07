@@ -1,38 +1,9 @@
 #!/usr/bin/python3
 
-from definitions import Player, FieldValue
 from copy import deepcopy
 
-
-class BoardGame:
-    def get_bord(self):
-        pass
-
-    def get_move_history(self):
-        pass
-
-    def get_movable_pawns(self):
-        pass
-
-    def get_moves_for_pawn(self, pawnField):
-        pass
-
-    def get_bord_with_moves(self, pawnField):
-        pass
-
-    def do_move(self, pawn, move):
-        pass
-
-    def is_terminal(self):
-        pass
-
-    def to_next_turn(self):
-        pass
-
-    def player_1_to_win(self):
-        pass
-
-    currentPlayer = None
+from games import BoardGame
+from models import FieldValue, Player
 
 
 class Bauernschach(BoardGame):
@@ -200,7 +171,11 @@ class Bauernschach(BoardGame):
 
         return: bool.
         """
-        return self._field_on_bord(move) and self._field_occupiedByOpponent(move)
+        if not self._field_on_bord(move):
+            return False
+        if not self._field_occupiedByOpponent(move):
+            return False
+        return True
 
     def _can_move_en_passant(self, pawn, move):
         """

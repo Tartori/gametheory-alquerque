@@ -13,7 +13,8 @@ You need to do either or else you'll get an exception
 >>> Field()
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-  File "/Users/julian/school/gametheory-alquerque/definitions.py", line 59, in __init__
+  File "/Users/julian/school/gametheory-alquerque/definitions.py", line 59,
+    in __init__
     raise Exception("Pass either col and row or text.")
 Exception: Pass either col and row or text.
 
