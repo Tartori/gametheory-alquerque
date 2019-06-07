@@ -11,15 +11,13 @@ class BaseController:
 
     """
     _state = None
-    _current = None
     _gui = Output()
-    _feedback = None
     _shared_options = {
         Commands.QUIT_APP: "stops app",
     }
 
-    def __init__(self, current):
-        self._current = current
+    def __init__(self, state):
+        self._state = state
         pass
 
     def _map_field_text_to_coordinates(self, field):

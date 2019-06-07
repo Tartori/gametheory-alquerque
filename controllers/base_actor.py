@@ -12,8 +12,8 @@ class BaseActor(BaseController):
     """
     _name = None
 
-    def __init__(self, name, current):
-        super().__init__(current)
+    def __init__(self, name, state):
+        super().__init__(state)
         self._name = name
 
     def take_turn(self):
@@ -25,13 +25,13 @@ class BaseActor(BaseController):
         with default values.
         """
         values = ScreenParameters()
-        if self._current.game is not None:
-            values.game = self._current.game
-            values.board = self._current.game.get_bord()
-            values.moveHistory = self._current.game.get_move_history()
-        if self._feedback is not None:
-            values.feedback = self._feedback
-            self._feedback = None
+        if self._state.game.engine is not None:
+            values.game = self._state.game.engine
+            values.board = self._state.game.engine.get_bord()
+            values.moveHistory = self._state.game.engine.get_move_history()
+        if self._state.feedback is not None:
+            values.feedback = self._state.feedback
+            self._state.feedback = None
         if self._name is not None:
             values.player = self._name
         values.options = deepcopy(self._shared_options)

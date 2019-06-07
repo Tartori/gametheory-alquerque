@@ -7,7 +7,7 @@ class CurrentGame:
     player_to_start = None
 
     # Game engine, state, players
-    game = None
+    engine = None
     current_actor = None
     waiting_actor = None
     history = []

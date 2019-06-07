@@ -6,6 +6,11 @@ class Player:
     OPP = -1
 
 
+class MachineStrategies:
+    RANDOM = 0,
+    CLEVER = 1
+
+
 class FieldValue:
     USER = 1
     OPP = -1
@@ -31,6 +36,8 @@ class States:
     SWITCH_TURN = 9
     WIN = 10
     BYE = -1
+    CHOOSE_STRATEGIC = 11
+    END_TURN = 12
 
 
 class Commands:
