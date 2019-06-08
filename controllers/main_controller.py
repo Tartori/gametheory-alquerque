@@ -41,7 +41,7 @@ class MainController(BaseController):
                     self.__do_step_choose_board_size()
                     continue
                 elif self._state.activity == States.CHOOSE_OPP:
-                    self.__do_step_CHOOSE_OPP()
+                    self.__do_step_choose_opp()
                     continue
                 elif self._state.activity == States.CHOOSE_MACHINE_STRATEGY:
                     self.__do_step_choose_machine_strategy()
@@ -125,7 +125,7 @@ class MainController(BaseController):
                 self._state.activity = States.BYE
                 return
 
-        elif int(input) in range(4, 8):
+        elif int(input) in range(4, 9):
             self._state.game.board_size = int(input)
             self._state.feedback = "You have chosen a board of size " \
                 + input + "."
@@ -136,7 +136,7 @@ class MainController(BaseController):
             self._state.feedback = "Bad input! "
             return
 
-    def __do_step_CHOOSE_OPP(self):
+    def __do_step_choose_opp(self):
         """
         The (human) user chooses whether he is going to play
         against another human or against the machine.
@@ -182,6 +182,7 @@ class MainController(BaseController):
         params.instruction = "What strategy shall the machine use?"
         params.options.update({
             Commands.CHOOSE_MACHINE_STRATEGY_RANDOM: "Random",
+            Commands.CHOOSE_MACHINE_STRATEGY_CLEVER: "Clever"
         })
         self._gui.print_screen(params)
 
@@ -196,6 +197,12 @@ class MainController(BaseController):
             self._state.game.machine = MachineStrategies.RANDOM
             self._state.activity = States.CHOOSE_PLAYER_ORDER
             self._state.feedback = "You have chosen the random acting opp."
+            return
+
+        elif input == Commands.CHOOSE_MACHINE_STRATEGY_CLEVER:
+            self._state.game.machine = MachineStrategies.CLEVER
+            self._state.activity = States.CHOOSE_PLAYER_ORDER
+            self._state.feedback = "You have chosen the clever acting opp."
             return
 
         else:
@@ -257,8 +264,8 @@ class MainController(BaseController):
             player_opp = MachineRandomActor(
                 "Machine Opp (Random)", self._state)
         elif self._state.game.machine == MachineStrategies.CLEVER:
-            raise NotImplementedError(
-                "Clever machine strategy not implemented.")
+            player_opp = MachineCleverActor(
+                "Machine Opp (Clever)", self._state)
         else:
             raise Exception("No opponent defined.")
 
