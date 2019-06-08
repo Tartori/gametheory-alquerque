@@ -6,6 +6,9 @@ from models import FieldValue, Player
 
 
 class Output:
+    """
+    The rendering of the console game.
+    """
 
     def clear(self):
         return os.system('cls' if os.name == 'nt' else 'clear')
@@ -66,7 +69,7 @@ class Output:
                 # one char in length
                 cells.append(self._prepare_cell(
                     positions[rowindex][cellindex]))
-            row = (" " + ' | '.join(['%s']*len(cells)) + " |") % tuple(cells)
+            row = (" " + ' | '.join(['%s'] * len(cells)) + " |") % tuple(cells)
             bord.append(row)
             bord.append(rowSeparator)
         return bord

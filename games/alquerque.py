@@ -2,6 +2,10 @@
 
 
 class Alquerque:
+    """
+    The game engine to play Alquerque.
+    NOT REALLY IMPLEMENTED.
+    """
 
     gamestate = []
     initialGamestate = [

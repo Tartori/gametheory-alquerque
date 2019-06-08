@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+# TODO: could be refactored and fused with the State. Maybe?
+
 
 class ScreenParameters:
     """

@@ -1,22 +1,34 @@
 #!/usr/bin/python3
 
 from sys import stdin
+from copy import deepcopy
 
 from gui import Output
-from models import Commands
+from models import Commands, ScreenParameters
 
 
 class BaseController:
     """
-
+    This app is build on the idea of MVC.
+    This is the controller all other controllers inherit from.
     """
+    # Contains the global state store of the app.
+    # Is shared amongst all controllers.
     _state = None
+
+    # The name of this actor so we know who is doing what.
+    _name = None
+
+    # Produces the screen rendering.
     _gui = Output()
+
+    # Input options that are used in all controllers.
     _shared_options = {
         Commands.QUIT_APP: "stops app",
     }
 
-    def __init__(self, state):
+    def __init__(self, name, state):
+        self._name = name
         self._state = state
         pass
 
@@ -43,3 +55,22 @@ class BaseController:
             return stdin.readline().strip().upper()
         except:
             return ""
+
+    def _prepare_values_to_be_rendered(self):
+        """
+        Helper function that initializes a new screen parameter object
+        with default values.
+        """
+        values = ScreenParameters()
+        if self._state.game is not None and \
+                self._state.game.engine is not None:
+            values.game = self._state.game.engine
+            values.board = self._state.game.engine.get_bord()
+            values.moveHistory = self._state.game.engine.get_move_history()
+        if self._state.feedback is not None:
+            values.feedback = self._state.feedback
+            self._state.feedback = None
+        if self._name is not None:
+            values.player = self._name
+        values.options = deepcopy(self._shared_options)
+        return values

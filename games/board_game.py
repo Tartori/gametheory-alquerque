@@ -2,6 +2,10 @@
 
 
 class BoardGame:
+    """
+    The base class for the board games.
+    NOT REALLY IMPLEMENTED.
+    """
     def get_bord(self):
         pass
 

@@ -2,11 +2,14 @@
 
 from copy import deepcopy
 
-from games import BoardGame
-from models import FieldValue, Player
+from models import Player, FieldValue
+from games.board_game import BoardGame
 
 
 class Bauernschach(BoardGame):
+    """
+    The game engine to play Bauernschach.
+    """
 
     gamestate = []
     gamestateHistory = []
@@ -34,7 +37,8 @@ class Bauernschach(BoardGame):
         self.gamestate = [
             [0 for col in range(self.size)] for row in range(self.size)]
         self.gamestate[1] = [Player.OPP for col in range(self.size)]
-        self.gamestate[self.size-2] = [Player.USER for col in range(self.size)]
+        self.gamestate[self.size - 2] = \
+            [Player.USER for col in range(self.size)]
 
     def get_bord(self):
         """Returns the bord as an array."""
