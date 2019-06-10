@@ -4,7 +4,7 @@ from sys import stdin
 from copy import deepcopy
 
 from gui import Output
-from models import Commands, ScreenParameters
+from models import Commands, ScreenParameters, States, CurrentGame
 
 
 class BaseController:
@@ -25,6 +25,7 @@ class BaseController:
     # Input options that are used in all controllers.
     _shared_options = {
         Commands.QUIT_APP: "stops app",
+        Commands.ABORT_GAME_START_FRESH: "abort game"
     }
 
     def __init__(self, name, state):
@@ -74,3 +75,23 @@ class BaseController:
             values.player = self._name
         values.options = deepcopy(self._shared_options)
         return values
+
+    def _handle_common_inputs(self, input, allOptions):
+        """
+        Handles inputs that are common amongst all promts.
+        Handles bad input.
+        If has handled input, returns True. Else False.
+        """
+        if input in self._shared_options:
+            if input == Commands.QUIT_APP:
+                self._state.feedback = None
+                self._state.activity = States.BYE
+            elif input == Commands.ABORT_GAME_START_FRESH:
+                self._state.feedback = "You aborted the game. Start a new one."
+                self._state.game = CurrentGame()
+                self._state.activity = States.CHOOSE_GAME
+            elif input not in allOptions:
+                self._state.feedback = "Bad input! "
+            return True
+        else:
+            return False

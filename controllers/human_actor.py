@@ -47,21 +47,11 @@ class HumanActor(BaseActor):
 
         input = self._read_input()
 
-        if input == Commands.QUIT_APP:
-            self._feedback = None
-            self._state.activity = States.BYE
-            return
-
-        elif input in params.options:
+        if not self._handle_common_inputs(input, params.options):
             field = self._map_field_text_to_coordinates(input)
             self._selected_pawn = field
             self._state.activity = States.CHOOSE_MOVE
             self._feedback = "You want to move pawn " + input + ". "
-            return
-
-        else:
-            self._feedback = "Bad input! "
-            return
 
     def __do_step_choose_move(self):
         """
@@ -77,14 +67,7 @@ class HumanActor(BaseActor):
 
         input = self._read_input()
 
-        if input == Commands.QUIT_APP:
-            self._feedback = None
-            self._state.activity = States.BYE
-
-        elif input in params.options:
+        if not self._handle_common_inputs(input, params.options):
             field = self._map_field_text_to_coordinates(input)
             self._selected_move = field
             self._do_draw()
-
-        else:
-            self._feedback = "Bad input! "

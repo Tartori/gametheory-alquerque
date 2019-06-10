@@ -4,9 +4,10 @@
 from copy import deepcopy
 
 # from controllers import BaseController, HumanActor, MachineRandomActor
-from controllers import BaseController, HumanActor, MachineRandomActor, MachineCleverActor
-from models import State, CurrentGame, Commands, Games, MachineStrategies
-from models import Player, ScreenParameters, States
+from controllers import BaseController, HumanActor, MachineRandomActor, \
+    MachineCleverActor
+from models import State, CurrentGame, Commands, Games, MachineStrategies, \
+    Player, ScreenParameters, States
 from games import Bauernschach
 
 
@@ -79,28 +80,18 @@ class MainController(BaseController):
 
         input = self._read_input()
 
-        if input == Commands.QUIT_APP:
-            self._state.feedback = None
-            self._state.activity = States.BYE
-            return
+        if not self._handle_common_inputs(input, params.options):
+            if input == Commands.CHOOSE_GAME_ALQUERQUE:
+                self._state.game = CurrentGame()
+                self._state.game.engine_choice = Games.ALQUERQUE
+                self._state.activity = States.CHOOSE_BOARD_SIZE
+                self._state.feedback = "You have chosen to play Alquerque."
 
-        elif input == Commands.CHOOSE_GAME_ALQUERQUE:
-            self._state.game = CurrentGame()
-            self._state.game.engine_choice = Games.ALQUERQUE
-            self._state.activity = States.CHOOSE_BOARD_SIZE
-            self._state.feedback = "You have chosen to play Alquerque."
-            return
-
-        elif input == Commands.CHOOSE_GAME_BAUERNSCHACH:
-            self._state.game = CurrentGame()
-            self._state.game.engine_choice = Games.BAUERNSCHACH
-            self._state.activity = States.CHOOSE_BOARD_SIZE
-            self._state.feedback = "You have chosen to play Bauernschach."
-            return
-
-        else:
-            self._state.feedback = "Bad input! "
-            return
+            elif input == Commands.CHOOSE_GAME_BAUERNSCHACH:
+                self._state.game = CurrentGame()
+                self._state.game.engine_choice = Games.BAUERNSCHACH
+                self._state.activity = States.CHOOSE_BOARD_SIZE
+                self._state.feedback = "You have chosen to play Bauernschach."
 
     def __do_step_choose_board_size(self):
         """
@@ -119,22 +110,12 @@ class MainController(BaseController):
 
         input = self._read_input()
 
-        if input in self._shared_options:
-            if input == Commands.QUIT_APP:
-                self._state.feedback = None
-                self._state.activity = States.BYE
-                return
-
-        elif int(input) in range(4, 9):
-            self._state.game.board_size = int(input)
-            self._state.feedback = "You have chosen a board of size " \
-                + input + "."
-            self._state.activity = States.CHOOSE_OPP
-            return
-
-        else:
-            self._state.feedback = "Bad input! "
-            return
+        if not self._handle_common_inputs(input, params.options):
+            if int(input) in range(4, 9):
+                self._state.game.board_size = int(input)
+                self._state.feedback = "You have chosen a board of size " \
+                    + input + "."
+                self._state.activity = States.CHOOSE_OPP
 
     def __do_step_choose_opp(self):
         """
@@ -151,27 +132,17 @@ class MainController(BaseController):
 
         input = self._read_input()
 
-        if input == Commands.QUIT_APP:
-            self._state.feedback = None
-            self._state.activity = States.BYE
-            return
+        if not self._handle_common_inputs(input, params.options):
+            if input == Commands.CHOOSE_OPP_AS_HUMAN:
+                self._state.game.machine = None
+                self._state.activity = States.CHOOSE_PLAYER_ORDER
+                self._state.feedback = "You have chosen to play " + \
+                    "against another human."
 
-        elif input == Commands.CHOOSE_OPP_AS_HUMAN:
-            self._state.game.machine = None
-            self._state.activity = States.CHOOSE_PLAYER_ORDER
-            self._state.feedback = "You have chosen to play " + \
-                "against another human."
-            return
-
-        elif input == Commands.CHOOSE_OPP_AS_MACHINE:
-            self._state.activity = States.CHOOSE_MACHINE_STRATEGY
-            self._state.feedback = "You have chosen to play " + \
-                "against the machine."
-            return
-
-        else:
-            self._state.feedback = "Bad input! "
-            return
+            elif input == Commands.CHOOSE_OPP_AS_MACHINE:
+                self._state.activity = States.CHOOSE_MACHINE_STRATEGY
+                self._state.feedback = "You have chosen to play " + \
+                    "against the machine."
 
     def __do_step_choose_machine_strategy(self):
         """
@@ -188,26 +159,16 @@ class MainController(BaseController):
 
         input = self._read_input()
 
-        if input == Commands.QUIT_APP:
-            self._state.feedback = None
-            self._state.activity = States.BYE
-            return
+        if not self._handle_common_inputs(input, params.options):
+            if input == Commands.CHOOSE_MACHINE_STRATEGY_RANDOM:
+                self._state.game.machine = MachineStrategies.RANDOM
+                self._state.activity = States.CHOOSE_PLAYER_ORDER
+                self._state.feedback = "You have chosen the random acting opp."
 
-        elif input == Commands.CHOOSE_MACHINE_STRATEGY_RANDOM:
-            self._state.game.machine = MachineStrategies.RANDOM
-            self._state.activity = States.CHOOSE_PLAYER_ORDER
-            self._state.feedback = "You have chosen the random acting opp."
-            return
-
-        elif input == Commands.CHOOSE_MACHINE_STRATEGY_CLEVER:
-            self._state.game.machine = MachineStrategies.CLEVER
-            self._state.activity = States.CHOOSE_PLAYER_ORDER
-            self._state.feedback = "You have chosen the clever acting opp."
-            return
-
-        else:
-            self._state.feedback = "Bad input! "
-            return
+            elif input == Commands.CHOOSE_MACHINE_STRATEGY_CLEVER:
+                self._state.game.machine = MachineStrategies.CLEVER
+                self._state.activity = States.CHOOSE_PLAYER_ORDER
+                self._state.feedback = "You have chosen the clever acting opp."
 
     def __do_step_choose_player_order(self):
         """
@@ -223,24 +184,14 @@ class MainController(BaseController):
 
         input = self._read_input()
 
-        if input == Commands.QUIT_APP:
-            self._state.feedback = None
-            self._state.activity = States.BYE
-            return
+        if not self._handle_common_inputs(input, params.options):
+            if input == Commands.CHOOSE_FIRST_PLAYER_ME:
+                self._state.game.player_to_start = Player.USER
+                self._state.activity = States.START_GAME
 
-        elif input == Commands.CHOOSE_FIRST_PLAYER_ME:
-            self._state.game.player_to_start = Player.USER
-            self._state.activity = States.START_GAME
-            return
-
-        elif input == Commands.CHOOSE_FIRST_PLAYER_OPPONENT:
-            self._state.game.player_to_start = Player.OPP
-            self._state.activity = States.START_GAME
-            return
-
-        else:
-            self._state.feedback = "Bad input! "
-            return
+            elif input == Commands.CHOOSE_FIRST_PLAYER_OPPONENT:
+                self._state.game.player_to_start = Player.OPP
+                self._state.activity = States.START_GAME
 
     def __do_step_start_game(self):
         """
