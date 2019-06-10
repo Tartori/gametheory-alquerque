@@ -9,8 +9,8 @@ class MachineCleverActor(BaseMachineActor):
     of a machine player that follows the MachineStrategies.CLEVER.
     """
 
-    def __init__(self, name: str, state):
-        super().__init__(name, state)
+    def __init__(self, name: str, state, playerId):
+        super().__init__(name, state, playerId)
 
     def _choose_best_option(self) -> None:
         """

@@ -257,15 +257,15 @@ class MainController(BaseController):
             raise Exception("Alquerque is not implemented.")
 
         # Set up the actors
-        player_user = HumanActor("Player User", self._state)
+        player_user = HumanActor("Player User", self._state, Player.USER)
         if self._state.game.machine is None:
-            player_opp = HumanActor("Human Opp", self._state)
+            player_opp = HumanActor("Human Opp", self._state, Player.OPP)
         elif self._state.game.machine == MachineStrategies.RANDOM:
             player_opp = MachineRandomActor(
-                "Machine Opp (Random)", self._state)
+                "Machine Opp (Random)", self._state, Player.OPP)
         elif self._state.game.machine == MachineStrategies.CLEVER:
             player_opp = MachineCleverActor(
-                "Machine Opp (Clever)", self._state)
+                "Machine Opp (Clever)", self._state, Player.OPP)
         else:
             raise Exception("No opponent defined.")
 
@@ -311,7 +311,8 @@ class MainController(BaseController):
         """
         Termination of the game loop.
         """
-        if self._state.game.engine.player_1_to_win():
+        winner = self._state.game.engine.get_winner()
+        if winner == Player.USER:
             self._state.feedback = "You have won. Congrats! "
         else:
             self._state.feedback = "Opponent has won. Better luck next time. "

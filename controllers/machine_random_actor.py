@@ -9,8 +9,8 @@ class MachineRandomActor(BaseMachineActor):
     of a machine player that follows the MachineStrategies.RANDOM.
     """
 
-    def __init__(self, name: str, state):
-        super().__init__(name, state)
+    def __init__(self, name: str, state, playerId):
+        super().__init__(name, state, playerId)
 
     def _choose_best_option(self) -> None:
         """

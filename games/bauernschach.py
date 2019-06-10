@@ -11,59 +11,43 @@ class Bauernschach(BoardGame):
     The game engine to play Bauernschach.
     """
 
-    gamestate = []
-    gamestateHistory = []
-    moveHistory = []
-    currentPlayer = Player.USER
-    currentlyPossibleMoves = []
-
     def __init__(self, player, size=8):
-        self.size = size
-        self.moveHistory = []
-        self.gamestateHistory = []
-        self._set_start_state()
-        self.currentPlayer = player
-        self._find_all_moves()
+        super().__init__(player, size)
 
     def to_next_turn(self):
-        self.currentPlayer *= -1
+        """
+        Switches the player and prepares him for playing.
+        """
+        self._current_player *= -1
         self._find_all_moves()
 
     def _set_start_state(self):
-        """Initializes the gamestate. Void."""
-        if(self.size < 4):
-            self.size = 4
+        """
+        Initializes the board.
+        Void.
+        """
+        if(self._size < self._MINIMUM_BOARD_SIZE):
+            self._size = self._MINIMUM_BOARD_SIZE
         # https://stackoverflow.com/questions/9459337/assign-value-to-an-individual-cell-in-a-two-dimensional-python-array
-        self.gamestate = [
-            [0 for col in range(self.size)] for row in range(self.size)]
-        self.gamestate[1] = [Player.OPP for col in range(self.size)]
-        self.gamestate[self.size - 2] = \
-            [Player.USER for col in range(self.size)]
-
-    def get_bord(self):
-        """Returns the bord as an array."""
-        return self.gamestate
-
-    def get_bord_with_moves(self, pawn):
-        bordWithMoves = deepcopy(self.gamestate)
-        movesForPawn = self.get_moves_for_pawn(pawn)
-        for m in movesForPawn:
-            bordWithMoves[m[0]][m[1]] = FieldValue.POSSIBLE_MOVE
-        return bordWithMoves
+        self._board = [
+            [0 for col in range(self._size)] for row in range(self._size)]
+        self._board[1] = [Player.OPP for col in range(self._size)]
+        self._board[self._size - 2] = \
+            [Player.USER for col in range(self._size)]
 
     def _find_all_moves(self):
         """
         For each pawn of the current player, finds all possible moves.
         return: void. (sets field)
         """
-        self.currentlyPossibleMoves = {}
-        for r in range(0, self.size):
-            for c in range(0, self.size):
+        self._possible_moves = {}
+        for r in range(0, self._size):
+            for c in range(0, self._size):
                 movesForPawn = []
 
-                isFinalRow = r == 0 or r == len(self.gamestate) - 1
+                isFinalRow = r == 0 or r == len(self._board) - 1
                 anyPlayer = [Player.USER, Player.OPP]
-                isOccupied = self.gamestate[r][c] in anyPlayer
+                isOccupied = self._board[r][c] in anyPlayer
                 if (isFinalRow and isOccupied):
                     raise Exception("Game is finished.")
 
@@ -94,36 +78,26 @@ class Bauernschach(BoardGame):
                     movesForPawn.append(moveRightEnPassant)
 
                 if len(movesForPawn) > 0:
-                    self.currentlyPossibleMoves[pawn] = movesForPawn
+                    self._possible_moves[pawn] = movesForPawn
         return
 
-    def _field_occupied(self, field):
-        return self.gamestate[field[0]][field[1]] in [-1, 1]
-
-    def _field_occupied_by_current_player(self, field):
-        return self.gamestate[field[0]][field[1]] == self.currentPlayer
-
-    def _field_occupiedByOpponent(self, field):
+    def _possible_move(self, pawn, move):
         """
-        Checks if a field on the board is occupied by a pawn owned by the
-        opposing player.
-        field: (i, j) where i is rowindex and j is colindex.
+        Checks if a pawn can move to a certain field.
+
+        pawn: (i, j) where i is rowindex and j is colindex referencing
+        the field of a pawn.
+
+        move: (i, j) where i is rowindex and j is colindex referencing
+        the field where the pawn wants to move to.
+
         return: bool.
         """
-        if self.currentPlayer == Player.USER:
-            opponent = Player.OPP
-        elif self.currentPlayer == Player.OPP:
-            opponent = Player.USER
-        return self.gamestate[field[0]][field[1]] == opponent
-
-    def _field_on_bord(self, field):
-        """
-        Checks if the field is in the boundaries of the bord.
-        field: (i, j) where i is rowindex and j is colindex.
-        return: bool.
-        """
-        size = len(self.gamestate)
-        return field[0] in range(0, size) and field[1] in range(0, size)
+        canFront = self._can_move_front(pawn, move)
+        canFrontTwo = self._can_move_front_two(pawn, move)
+        canSide = self._can_move_front_side_with_kill(pawn, move)
+        canEnPassant = self._can_move_en_passant(pawn, move)
+        return canFront or canFrontTwo or canSide or canEnPassant
 
     def _can_move_front(self, pawn, move):
         """
@@ -148,9 +122,9 @@ class Bauernschach(BoardGame):
         return: bool.
         """
         isFirstMovementForPiece = False
-        if self.currentPlayer == Player.USER:
-            isFirstMovementForPiece = pawn[0] == len(self.gamestate) - 2
-        if self.currentPlayer == Player.OPP:
+        if self._current_player == Player.USER:
+            isFirstMovementForPiece = pawn[0] == len(self._board) - 2
+        if self._current_player == Player.OPP:
             isFirstMovementForPiece = pawn[0] == 1
         if not isFirstMovementForPiece:
             return False
@@ -210,89 +184,8 @@ class Bauernschach(BoardGame):
             return False
         return True
 
-    def get_movable_pawns(self):
-        return self.currentlyPossibleMoves.keys()
+    def player_user_to_win(self):
+        return Player.USER in self._board[0]
 
-    def get_moves_for_pawn(self, pawn):
-        moves = self.currentlyPossibleMoves.get(pawn)
-        return moves
-
-    def _can_be_moved(self, pawn):
-        return pawn in self.get_movable_pawns()
-
-    def _possible_move(self, pawn, move):
-        """
-        Checks if a pawn can move to a certain field.
-
-        pawn: (i, j) where i is rowindex and j is colindex referencing
-        the field of a pawn.
-
-        move: (i, j) where i is rowindex and j is colindex referencing
-        the field where the pawn wants to move to.
-
-        return: bool.
-        """
-        canFront = self._can_move_front(pawn, move)
-        canFrontTwo = self._can_move_front_two(pawn, move)
-        canSide = self._can_move_front_side_with_kill(pawn, move)
-        canEnPassant = self._can_move_en_passant(pawn, move)
-        return canFront or canFrontTwo or canSide or canEnPassant
-
-    def _has_next_move(self):
-        """
-        Checks if the current player can make any move.
-        return: bool.
-        """
-        return len(self.currentlyPossibleMoves) > 0
-
-    def _get_next_move(self):
-        raise NotImplementedError("You should have implemented this")
-
-    def do_move(self, pawn, move):
-        """
-        Updates the gamestate by performing the move with the pawn.
-        Saves the previous gamestate and the move in the respective history.
-
-        pawn: (i, j) where i is rowindex and j is colindex referencing
-        the field of a pawn.
-
-        move: (i, j) where i is rowindex and j is colindex referencing
-        the field where the pawn wants to move to.
-
-        return: void.
-        """
-        if self._possible_move(pawn, move):
-            self.gamestateHistory.append(deepcopy(self.gamestate))
-            self.moveHistory.append((deepcopy(pawn), deepcopy(move)))
-            self.gamestate[pawn[0]][pawn[1]] = 0
-            self.gamestate[move[0]][move[1]] = self.currentPlayer
-
-    def undo_move(self, mv):
-        raise NotImplementedError("You should have implemented this")
-
-    def is_terminal(self):
-        return self.player_1_to_win() or self.player_2_to_win()
-
-    def player_1_to_win(self):
-        return Player.USER in self.gamestate[0]
-
-    def player_2_to_win(self):
-        return Player.OPP in self.gamestate[self.size - 1]
-
-    def get_move_history(self):
-        return self.moveHistory
-
-    def get_state_history(self):
-        return self.gamestateHistory
-
-    def _get_left(self, rowIndex):
-        return rowIndex + self.currentPlayer * -1
-
-    def _get_right(self, rowIndex):
-        return rowIndex + self.currentPlayer
-
-    def _get_advance(self, colIndex):
-        return colIndex + self.currentPlayer * -1
-
-    def _get_back(self, colIndex):
-        return colIndex + self.currentPlayer
+    def player_opp_to_win(self):
+        return Player.OPP in self._board[self._size - 1]

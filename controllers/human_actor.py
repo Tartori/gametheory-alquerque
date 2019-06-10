@@ -10,8 +10,8 @@ class HumanActor(BaseActor):
     its own controller.
     """
 
-    def __init__(self, name: str, state):
-        super().__init__(name, state)
+    def __init__(self, name: str, state, playerId):
+        super().__init__(name, state, playerId)
         self._state.activity = States.CHOOSE_PAWN
 
     def take_turn(self):

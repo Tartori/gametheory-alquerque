@@ -9,8 +9,8 @@ class BaseMachineActor(BaseActor):
     Implement for each machine strategy!
     """
 
-    def __init__(self, name, state):
-        super().__init__(name, state)
+    def __init__(self, name, state, playerId):
+        super().__init__(name, state, playerId)
 
     def take_turn(self):
         """
