@@ -1,67 +1,82 @@
-# gametheory-alquerque
+# Board Games with some Game Theory Cleverness
+Julian Stampfli, Marc Rey, 2019.
 
-An implementation of the alerquerque game in Python with an opponent that tries to play optimally. Written during a course on game theory in the BFH.
+## Context
+This is a console app developed during the course "Game Theory" by J. Eckerle at University of Applied Sciences Berne in Spring 2019.
 
-## Bauernschach
+The goal of this app is to implement Game Theory strategies in a play of a board game. The user plays against a computer opponent who may either choose his next move randomly or by strategically evaluating his best move.
 
-Beim Bauernschach sind auf dem Brett jeweils acht Bauern je Spieler vorhanden. Das Ziel ist es, mit einem Bauern die letzte Reihe (Grundreihe) des Gegners zu erreichen. Die Bauern können hierbei die im Schach gültigen Züge machen (Ziehen und Schlagen). Erreicht ein Bauer die gegnerische Grundreihe, gewinnt dieser Spieler sofort, eine Umwandlung des Bauern wie beim Schach unterbleibt. Anfänger können mit vier Bauern üben, und auch auf das Schlagen en passant kann anfangs verzichtet werden.
+There are two board games that can be played:
+- Pawn Chess / Bauernschach
+- Alquerque / Original Checkers
 
-## Original version of Checkers (according to Mr. Eckerle)
+## Board Games
 
-Für das Projekt ist ein einfaches Spiel, wie beispielsweise die Urform von Dame, zu realisieren.
+### Pawn Chess / Bauernschach
 
-Spielregeln:
+#### Game Rules
 
-Das Spielbrett ist ein rechtwinkliges Gitter der Grösse 5 x 5. Jeder Gitterpunkt stellt eine mögliche Dameposition dar. Zu Beginn wird das Brett mit einer Initialstellung belegt (siehe unten). Anschliessend machen beide Spieler jeweils abwechselnd einen Zug, der darin besteht einen Damenstein auf ein beliebiges direkt benachbartes freies Feld zu ziehen oder einen gegnerischen Stein zu überspringen (ist möglich, falls das unmittelbar dahinterliegende Feld frei ist). Der übersprungene Stein ist geschlagen und wird vom Brett entfernt. Im Unterschied zu den heutigen Damevarianten dürfen die Steine in beliebiger Richtung ziehen (vorwärts, rückwärts, seitwärts oder auch diagonal). In einem Zug darf maximal ein Stein übersprungen werden (statt mehrmalige zusammenhängende Sprünge wie beim Checker). Es gibt auch keine Umwandlung der Damesteine bei Erreichen der gegnerischen Linie. Eine Partei gewinnt, wenn der Gegner nicht mehr ziehen, sei es weil er keine Steine mehr besitzt oder sei es weil er bockiert ist (d.h. in der aktuellen Stellung keinen zulässigen Zug mehr ausführen kann). In allen anderen Fällen ist das Spiel Unentschieden.
+- The game is a simplification of Chess such that there are only the pawns and no other figures.
+- Play happens on a square board of 4 to 8 fields in width and height respectively.
+- Initially each player has as many pawns as the board is wide, placed in the second row closest to him.
+  ```
+  - - - - -
+  X X X X X
+  - - - - -
+  - - - - -
+  O O O O O
+  - - - - -
+  ```
+- Players move turn by turn and one pawn per turn.
+- Pawns may move by:
+  - advancing straight ahead 1 field, if this is not blocked.
+  - advancing straight ahead 2 fields, if those are unoccupied and the pawn has not been moved yet.
+  - advancing straight ahead 1 field then left or right 1 field, if the target field is occupied by the opponent. The opponent's pawn is killed.
+  - stepping left or right 1 field, if this field is occupied by the opponent and the occupying pawn has moved once. (en passant) The opponent's pawn is killed.
+- The game is won by the player who manages first to get a pawn to the last row on the opposite of the board.
 
-```
-S    S    S    S    S
-S    S    S    S    S
-S    S    .    W    W
-W    W    W    W    W
-W    W    W    W    W
-```
+#### Strategy
+
+TBD
+
+### Alquerque / Original version of Checkers
+
+#### Game Rules (according to Mr. Eckerle)
+
+- The game is a simplification of the various versions of Checkers played today.
+- Play happens on a square board of 4 to 8 fields in width and height respectively.
+- Initially each player has as many pawns as half the number of fields on the board, while 1 (uneven board width) or 2 (even board width) fields at the center must remain empty.
+  ```
+  X X X X X
+  X X X X X
+  X X - O O
+  O O O O O
+  O O O O O
+  ```
+  ```
+  X X X X X X
+  X X X X X X
+  X X - - O O
+  O O O O O O
+  O O O O O O
+  ```
+- Players move turn by turn and one pawn per turn.
+- Pawns may move by:
+  - moving 1 field in any direction including diagonally, if this field is unoccupied.
+  - moving 2 fields in any one direction including diagonally, if the first field is occupied by the opponent and the second field is unoccupied. The opponent's pawn on the first field is killed.
+- The game is won by the player who's opponent cannot move:
+  - either because he has no more pawns
+  - or because he has no possible moves, that is he is blocked.
+
+#### Strategy
+
+TBD
 
 Für die Bewertung der Horizontknoten kann statt einer heuristischen Bewertungsfunktion auch ein Monte-Carlo-Test zum Einsatz kommen. Siehe folgenden Artikel:
 
+## App usage
 
-
-## Alquerque based on the Alfonso Manuscript
-
-Rules from <https://www.mastersofgames.com/rules/alquerque-rules.htm>
-
-### Equipment
-
-The game of Alquerque is played on a special board of 5 x 5 points with lines between them to indicate allowed moves.  To draw a board is easy.  First draw a 5 x 5 orthogonal grid.  The draw two diagonal lines - from each corner to the opposite corner.  Finally draw four diagonal lines in the form of a square that connects the midpoints of each side.
-
-Alquerque is played with 12 black pieces and 12 white pieces in a similar way to Draughts (Checkers).  The pieces could be any shape but typically are counters or disks.
-
-### Preparation and Objective
-
-Toss a coin to decide who plays first.  Playing first is generally thought to be disadvantageous because of the lack of options.  The player playing black pieces places them on the 10 points of the nearest 2 rows plus the 2 rightmost points on the middle row as the player looks at it.  The other player sets the white pieces up in exactly the same way.  This leaves only the middle point without a piece upon it.
-
-The objective of the game is to take all of the opponent's pieces or to produce a position such that the opponent is unable to move.
-
-### Play
-
-Players take turns to move one of their pieces.  A piece may only move along the lines inscribed upon the board.  For each turn a piece makes either a capturing move or an ordinary move.
-
-Whenever a piece has an opponent's piece adjacent to it and the point immediately beyond the opponent's piece is vacant, the opponent's piece can be captured.  A piece is taken by simply hopping over it into the vacant point beyond and removing it from the board.  Unlike an ordinary move, a capturing move can consist of several such hops - if a piece takes an opponent's piece and the new position allows it to take another piece, then it can do so straight away.  The move finishes when the position of the capturing piece no longer allows it to taken any more pieces or the player could make another capture but decides not to.
-
-An ordinary move is made by simply moving a piece along a line to an adjacent point.
-
-### Finishing
-
-The game is won by the player who first manages to take all his opponent's pieces or by the player who has more pieces when it becomes apparent that no more pieces will be taken.   Alternatively, a player can win by rendering the other player unable to move.
-
-A draw occurs by agreement at any point during the game.  If it becomes apparent that no more pieces will be taken and both players have the same number of pieces left, a draw is agreed.  Draws are very common.
-
-### Alterations
-
-After a capture the capturing player can't continue. There are only single captures allowed at a time.
-
-## Running the code
-
-### Requirements
-
-- "Colorama" for cross platform coloring in terminal. See: <https://github.com/tartley/colorama>
+- Start by running the app.py in this same directory.
+- The app is built with Python version 3.7.
+- As a user, interact with the app by entering one of the commands shown at each step.
+- Note that on the board, you as a user are placed on the bottom side while the opponent is placed on the top side.
