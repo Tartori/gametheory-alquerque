@@ -1,6 +1,4 @@
 #!/usr/bin/python3
-
-
 from copy import deepcopy
 
 # from controllers import BaseController, HumanActor, MachineRandomActor
@@ -8,7 +6,7 @@ from controllers import BaseController, HumanActor, MachineRandomActor, \
     MachineCleverActor
 from models import State, CurrentGame, Commands, Games, MachineStrategies, \
     Player, ScreenParameters, States
-from games import Bauernschach
+from games import Bauernschach, Alquerque
 
 
 class MainController(BaseController):
@@ -205,7 +203,7 @@ class MainController(BaseController):
             self._state.game.engine = Bauernschach(playerToStart, boardSize)
 
         elif self._state.game.engine_choice == Games.ALQUERQUE:
-            raise Exception("Alquerque is not implemented.")
+            self._state.game.engine = Alquerque(playerToStart, boardSize)
 
         # Set up the actors
         player_user = HumanActor("Player User", self._state, Player.USER)
@@ -227,10 +225,7 @@ class MainController(BaseController):
             self._state.game.current_actor = player_opp
             self._state.game.waiting_actor = player_user
 
-        # go to next activity
         self._state.activity = States.TAKE_TURN
-
-        return
 
     def __do_step_take_turn(self):
         """
@@ -264,7 +259,11 @@ class MainController(BaseController):
         """
         winner = self._state.game.engine.get_winner()
         if winner == Player.USER:
-            self._state.feedback = "You have won. Congrats! "
+            self._state.feedback = "You (" + \
+                self._state.game.current_actor.get_name() + \
+                ") have won. Congrats! "
         else:
-            self._state.feedback = "Opponent has won. Better luck next time. "
+            self._state.feedback = "Opponent (" + \
+                self._state.game.current_actor.get_name() + \
+                ") has won. Better luck next time. "
         self._state.activity = States.CHOOSE_GAME

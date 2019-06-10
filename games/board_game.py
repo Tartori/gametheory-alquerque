@@ -40,7 +40,8 @@ class BoardGame:
         """
         Switches the player and prepares him for playing.
         """
-        raise NotImplementedError("Override in child class.")
+        self._current_player *= -1
+        self._find_all_moves()
 
     def get_bord(self):
         """Returns the bord as an array."""
@@ -72,26 +73,26 @@ class BoardGame:
 
         return: void.
         """
-        if self._possible_move(pawn, move):
-            self.gamestateHistory.append(deepcopy(self._board))
-            self.moveHistory.append((deepcopy(pawn), deepcopy(move)))
-            self._board[pawn[0]][pawn[1]] = 0
-            self._board[move[0]][move[1]] = self._current_player
+        self.gamestateHistory.append(deepcopy(self._board))
+        self.moveHistory.append((deepcopy(pawn), deepcopy(move)))
+        self._board[pawn[0]][pawn[1]] = 0
+        self._board[move[0]][move[1]] = self._current_player
+        self._check_for_winner()
 
     def undo_move(self, mv):
         raise NotImplementedError("You should have implemented this")
 
     def is_terminal(self):
-        if self.player_user_to_win():
-            self._winner = Player.USER
-        elif self.player_opp_to_win():
-            self._winner = Player.OPP
+        """
+        Checks if there has been a winner found.
+        """
         return self._winner is not None
 
-    def player_user_to_win(self):
-        raise NotImplementedError("Override in child class.")
-
-    def player_opp_to_win(self):
+    def _check_for_winner(self):
+        """
+        Checks if the current player has just won the game.
+        Must assign the Player to self._winner.
+        """
         raise NotImplementedError("Override in child class.")
 
     def get_move_history(self):
@@ -162,24 +163,52 @@ class BoardGame:
         """
         raise NotImplementedError("Override in child class.")
 
-    def _has_next_move(self):
+    def has_next_move(self):
         """
         Checks if the current player can make any move.
         return: bool.
         """
         return len(self._possible_moves) > 0
 
+    def peek(self):
+        """
+        Creates a copy of the current game engine and moves to the next turn.
+        """
+        gameCopy = deepcopy(self)
+        gameCopy.to_next_turn()
+        return gameCopy
+
     # def _get_next_move(self):
     #    raise NotImplementedError("You should have implemented this")
 
-    def _get_left(self, rowIndex):
+    def _get_left(self, rowIndex, numberOfFields=1):
         return rowIndex + self._current_player * -1
 
-    def _get_right(self, rowIndex):
+    def _get_right(self, rowIndex, numberOfFields=1):
         return rowIndex + self._current_player
 
-    def _get_advance(self, colIndex):
+    def _get_advance(self, colIndex, numberOfFields=1):
         return colIndex + self._current_player * -1
 
-    def _get_back(self, colIndex):
+    def _get_back(self, colIndex, numberOfFields=1):
         return colIndex + self._current_player
+
+    def _left(self, fieldTuple, numberOfFields=1):
+        r = fieldTuple[0] + self._current_player * -1 * numberOfFields
+        c = fieldTuple[1]
+        return (r, c)
+
+    def _right(self, fieldTuple, numberOfFields=1):
+        r = fieldTuple[0] + self._current_player * numberOfFields
+        c = fieldTuple[1]
+        return (r, c)
+
+    def _front(self, fieldTuple, numberOfFields=1):
+        r = fieldTuple[0]
+        c = fieldTuple[1] + self._current_player * -1 * numberOfFields
+        return (r, c)
+
+    def _back(self, fieldTuple, numberOfFields=1):
+        r = fieldTuple[0]
+        c = fieldTuple[1] + self._current_player * numberOfFields
+        return (r, c)

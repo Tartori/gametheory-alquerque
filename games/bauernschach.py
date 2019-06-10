@@ -14,13 +14,6 @@ class Bauernschach(BoardGame):
     def __init__(self, player, size=8):
         super().__init__(player, size)
 
-    def to_next_turn(self):
-        """
-        Switches the player and prepares him for playing.
-        """
-        self._current_player *= -1
-        self._find_all_moves()
-
     def _set_start_state(self):
         """
         Initializes the board.
@@ -184,8 +177,14 @@ class Bauernschach(BoardGame):
             return False
         return True
 
-    def player_user_to_win(self):
-        return Player.USER in self._board[0]
-
-    def player_opp_to_win(self):
-        return Player.OPP in self._board[self._size - 1]
+    def _check_for_winner(self):
+        """
+        Checks if the current player has just won the game.
+        Must assign the Player to self._winner.
+        """
+        userWins = Player.USER in self._board[0]
+        oppWins = Player.OPP in self._board[self._size - 1]
+        if userWins:
+            self._winner = Player.USER
+        elif oppWins:
+            self._winner = Player.OPP

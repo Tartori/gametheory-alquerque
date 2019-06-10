@@ -48,10 +48,11 @@ class HumanActor(BaseActor):
         input = self._read_input()
 
         if not self._handle_common_inputs(input, params.options):
-            field = self._map_field_text_to_coordinates(input)
-            self._selected_pawn = field
-            self._state.activity = States.CHOOSE_MOVE
-            self._feedback = "You want to move pawn " + input + ". "
+            if input in params.options:
+                field = self._map_field_text_to_coordinates(input)
+                self._selected_pawn = field
+                self._state.activity = States.CHOOSE_MOVE
+                self._feedback = "You want to move pawn " + input + ". "
 
     def __do_step_choose_move(self):
         """
@@ -68,6 +69,7 @@ class HumanActor(BaseActor):
         input = self._read_input()
 
         if not self._handle_common_inputs(input, params.options):
-            field = self._map_field_text_to_coordinates(input)
-            self._selected_move = field
-            self._do_draw()
+            if input in params.options:
+                field = self._map_field_text_to_coordinates(input)
+                self._selected_move = field
+                self._do_draw()
