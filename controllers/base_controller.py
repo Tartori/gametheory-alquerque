@@ -12,12 +12,6 @@ class BaseController:
     This app is build on the idea of MVC.
     This is the controller all other controllers inherit from.
     """
-    # Contains the global state store of the app.
-    # Is shared amongst all controllers.
-    _state = None
-
-    # The name of this actor so we know who is doing what.
-    _name = None
 
     # Produces the screen rendering.
     _gui = Output()
@@ -29,9 +23,11 @@ class BaseController:
     }
 
     def __init__(self, name, state):
-        self._name = name
+        # Contains the global state store of the app.
+        # Is shared amongst all controllers.
         self._state = state
-        pass
+        # The name of this actor so we know who is doing what.
+        self._name = name
 
     def _map_field_text_to_coordinates(self, field):
         """

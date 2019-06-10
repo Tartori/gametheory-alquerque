@@ -12,27 +12,19 @@ class BoardGame:
     # The minimum width and height of the board.
     _MINIMUM_BOARD_SIZE = 4
 
-    # The width and height of the board.
-    _size = 0
-
-    # The current player, i.e. Player.USER or Player.OPP
-    _current_player = 0
-
-    # The board, i.e. the collection of fields.
-    _board = []
-
-    # All moves possible currently.
-    _possible_moves = {}
-
-    # The player that has won.
-    _winner = None
-
-    gamestateHistory = []
-    moveHistory = []
-
     def __init__(self, player, size):
+        # The width and height of the board.
         self._size = size
+        # The current player, i.e. Player.USER or Player.OPP
         self._current_player = player
+        # The board, i.e. the collection of fields.
+        self._board = []
+        # All moves possible currently.
+        self._possible_moves = {}
+        # The player that has won.
+        self._winner = None
+        self.gamestateHistory = []
+        self.moveHistory = []
         self._set_start_state()
         self._find_all_moves()
 

@@ -234,6 +234,9 @@ class MainController(BaseController):
         """
         self._state.game.current_actor.take_turn()
 
+        if not self._state.activity == States.TAKE_TURN:
+            return
+
         if (self._state.game.engine.is_terminal()):
             self._state.activity = States.WIN
         else:

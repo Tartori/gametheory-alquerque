@@ -11,17 +11,13 @@ class BaseActor(BaseController):
     Can be a human or machine player.
     """
 
-    _player_id = None
-
-    # Describes the currently selected pawn
-    _selected_pawn = None
-
-    # Describes the currently selected move for the selected pawn
-    _selected_move = None
-
     def __init__(self, name, state, playerId):
         super().__init__(name, state)
         self._player_id = playerId
+        # Describes the currently selected pawn
+        self._selected_pawn = None
+        # Describes the currently selected move for the selected pawn
+        self._selected_move = None
 
     def take_turn(self):
         """
