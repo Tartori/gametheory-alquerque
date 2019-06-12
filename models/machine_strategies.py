@@ -7,3 +7,4 @@ class MachineStrategies:
     """
     RANDOM = 0
     CLEVER = 1
+    SIMPLE_HEURISTIC = 2
