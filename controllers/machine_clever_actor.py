@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 from controllers import BaseMachineActor
 from random import random, choice
+from copy import deepcopy
 
 
 class MachineCleverActor(BaseMachineActor):
@@ -17,10 +18,48 @@ class MachineCleverActor(BaseMachineActor):
         Implements the strategy of choosing the best move.
         Sets the properties _selected_pawn and _selected_move.
         """
+        (_, self._selected_pawn, self._selected_move) = self.__find_best_solution_rec(
+            4, deepcopy(self._state.game.engine))
 
-        # TODO: Jules, find best pawn and move!
-        raise NotImplementedError("Implement me!")
+    def __find_best_solution_rec(self, depth, game):
+        """
+        """
 
-        # TODO: Jules, assign pawn and move!
-        self._selected_pawn = None
-        self._selected_move = None
+        if depth == 0:
+            return (self.__get_heuristic(game) * game._current_player, None, None)
+
+        alpha = -100
+        alphapawn, alphamove = None, None
+        for pawn in game.get_movable_pawns():
+            for move in game.get_moves_for_pawn(pawn):
+                movegame = deepcopy(game)
+                movegame.do_move(pawn, move)
+                if movegame.get_winner() is None:
+                    (opp, _, _) = self.__find_best_solution_rec(depth-1, movegame)
+                    sol = -opp
+                else:
+                    sol = 100
+                if sol > alpha:
+                    alphamove = move
+                    alphapawn = pawn
+                    alpha = sol
+        return alpha, alphapawn, alphamove
+
+    def __get_heuristic(self, game):
+        return sum([sum(x) for x in game.get_bord()])
+        wins = 0
+        for pawn in game.get_movable_pawns():
+            for move in game.get_moves_for_pawn(pawn):
+                movegame = deepcopy(game)
+                movegame.do_move(pawn, move)
+                wins -= self.__monte_carlo(game)
+        return wins
+
+    def __monte_carlo(self, game):
+        pawn = choice(list(game.get_movable_pawns()))
+        move = choice(game.get_moves_for_pawn(pawn))
+        game.do_move(pawn, move)
+        if game.get_winner() is not None:
+            return 1
+        else:
+            return self.__monte_carlo(game)
