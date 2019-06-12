@@ -19,14 +19,14 @@ class MachineCleverActor(BaseMachineActor):
         Sets the properties _selected_pawn and _selected_move.
         """
         (_, self._selected_pawn, self._selected_move) = self.__find_best_solution_rec(
-            6, deepcopy(self._state.game.engine))
+            4, deepcopy(self._state.game.engine))
 
     def __find_best_solution_rec(self, depth, game):
         """
         """
 
         if depth == 0:
-            return (self.__get_heuristic(game.get_bord()) * game._current_player, None, None)
+            return (self.__get_heuristic(game) * game._current_player, None, None)
 
         alpha = -100
         alphapawn, alphamove = None, None
@@ -45,5 +45,21 @@ class MachineCleverActor(BaseMachineActor):
                     alpha = sol
         return alpha, alphapawn, alphamove
 
-    def __get_heuristic(self, board):
-        return sum([sum(x) for x in board])
+    def __get_heuristic(self, game):
+        return sum([sum(x) for x in game.get_bord()])
+        wins = 0
+        for pawn in game.get_movable_pawns():
+            for move in game.get_moves_for_pawn(pawn):
+                movegame = deepcopy(game)
+                movegame.do_move(pawn, move)
+                wins -= self.__monte_carlo(game)
+        return wins
+
+    def __monte_carlo(self, game):
+        pawn = choice(list(game.get_movable_pawns()))
+        move = choice(game.get_moves_for_pawn(pawn))
+        game.do_move(pawn, move)
+        if game.get_winner() is not None:
+            return 1
+        else:
+            return self.__monte_carlo(game)
