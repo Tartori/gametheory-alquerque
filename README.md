@@ -23,14 +23,13 @@ There are two board games that can be played:
 - Play happens on a square board of 4 to 8 fields in width and height respectively.
 - Initially each player has as many pawns as the board is wide, placed in the second row closest to him.
   ```md
-```bash
-- - - - -
-X X X X X
-- - - - -
-- - - - -
-O O O O O
-- - - - -
-```
+  - - - - -
+  X X X X X
+  - - - - -
+  - - - - -
+  O O O O O
+  - - - - -
+  ```
 
 - Players move turn by turn and one pawn per turn.
 - Pawns may move by:
@@ -58,6 +57,23 @@ Search is performed by Alpha-Beta-Pruning at a deepness of 4.
 
 Search is performed by Alpha-Beta-Pruning at a deepness of 4.
 
+The heuristic evaluation function is based on various considerations:
+- Total pawns:
+  - The more pawns one has compared to the number of pawns the opponent has, the better.
+- Position of one pawn relative to the game board:
+  - The further advanced a pawn, the better.
+  - A pawn that has an unblocked path to the finish line
+    - is great.
+    - is less great, if there is an opponent's pawn in a neighbouring line up ahead and thus could kill our pawn.
+- Position of one pawn relative to our and opponent's other pawns:
+  - A pawn is strong if ...
+    - he can kill another pawn now
+    - without being killed in the next move
+    - without another being killed in the next move
+  - A pawn is safe if ...
+    - he cannot be killed in the next move
+    - he can be killed in the next move but the killer himself can be killed in the move after. (both players loose 1 pawn each)
+
 ##### Monte Carlo
 
 Search is performed by Alpha-Beta-Pruning at a deepness of 4.
@@ -70,21 +86,19 @@ Search is performed by Alpha-Beta-Pruning at a deepness of 4.
 - Play happens on a square board of 4 to 8 fields in width and height respectively.
 - Initially each player has as many pawns as half the number of fields on the board, while 1 (uneven board width) or 2 (even board width) fields at the center must remain empty.
   ```md
-```bash
-  X X X X X
-  X X X X X
-  X X - O O
-  O O O O O
-  O O O O O
-```
+    X X X X X
+    X X X X X
+    X X - O O
+    O O O O O
+    O O O O O
+    ```
   ```md
-```bash
-  X X X X X X
-  X X X X X X
-  X X - - O O
-  O O O O O O
-  O O O O O O
-```
+    X X X X X X
+    X X X X X X
+    X X - - O O
+    O O O O O O
+    O O O O O O
+    ```
 
 - Players move turn by turn and one pawn per turn.
 - Pawns may move by:
