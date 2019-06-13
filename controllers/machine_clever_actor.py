@@ -21,28 +21,29 @@ class MachineCleverActor(BaseMachineActor):
         (_, self._selected_pawn, self._selected_move) = self.__find_best_solution_rec(
             4, deepcopy(self._state.game.engine))
 
-    def __find_best_solution_rec(self, depth, game):
+    def __find_best_solution_rec(self, depth, game, alpha=-100):
         """
         """
 
         if depth == 0:
             return (self.__get_heuristic(game), None, None)
 
-        alpha = -100
         alphapawn, alphamove = None, None
         for pawn in game.get_movable_pawns():
             for move in game.get_moves_for_pawn(pawn):
                 movegame = deepcopy(game)
                 movegame.do_move(pawn, move)
-                if movegame.get_winner() is None:
-                    (opp, _, _) = self.__find_best_solution_rec(depth-1, movegame)
-                    sol = -opp
-                else:
-                    sol = 100
-                if sol > alpha:
-                    alphamove = move
-                    alphapawn = pawn
-                    alpha = sol
+                movegame.to_next_turn()
+                if movegame.get_winner() is not None:
+                    return 100, pawn, move
+                (opp, _, _) = self.__find_best_solution_rec(
+                    depth-1, movegame, alpha)
+                sol = -opp
+                if(sol < alpha):
+                    break
+                alphamove = move
+                alphapawn = pawn
+                alpha = sol
         return alpha, alphapawn, alphamove
 
     def __get_heuristic(self, game):
@@ -52,6 +53,7 @@ class MachineCleverActor(BaseMachineActor):
             for move in game.get_moves_for_pawn(pawn):
                 movegame = deepcopy(game)
                 movegame.do_move(pawn, move)
+                movegame.to_next_turn()
                 wins -= self.__monte_carlo(game)
         return wins
 
@@ -59,6 +61,7 @@ class MachineCleverActor(BaseMachineActor):
         pawn = choice(list(game.get_movable_pawns()))
         move = choice(game.get_moves_for_pawn(pawn))
         game.do_move(pawn, move)
+        game.to_next_turn()
         if game.get_winner() is not None:
             return 1
         else:

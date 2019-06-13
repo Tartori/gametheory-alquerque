@@ -1,12 +1,15 @@
 # Board Games with some Game Theory Cleverness
+
 Julian Stampfli, Marc Rey, 2019.
 
 ## Context
+
 This is a console app developed during the course "Game Theory" by J. Eckerle at University of Applied Sciences Berne in Spring 2019.
 
 The goal of this app is to implement Game Theory strategies in a play of a board game. The user plays either against another human or against a computer opponent who may either choose his next move randomly or by strategically evaluating his best move.
 
 There are two board games that can be played:
+
 - Pawn Chess / Bauernschach
 - Alquerque / Original Checkers
 
@@ -20,13 +23,15 @@ There are two board games that can be played:
 - Play happens on a square board of 4 to 8 fields in width and height respectively.
 - Initially each player has as many pawns as the board is wide, placed in the second row closest to him.
   ```md
-  - - - - -
-  X X X X X
-  - - - - -
-  - - - - -
-  O O O O O
-  - - - - -
-  ```
+```bash
+- - - - -
+X X X X X
+- - - - -
+- - - - -
+O O O O O
+- - - - -
+```
+
 - Players move turn by turn and one pawn per turn.
 - Pawns may move by:
   - advancing straight ahead 1 field, if this is not blocked.
@@ -65,19 +70,22 @@ Search is performed by Alpha-Beta-Pruning at a deepness of 4.
 - Play happens on a square board of 4 to 8 fields in width and height respectively.
 - Initially each player has as many pawns as half the number of fields on the board, while 1 (uneven board width) or 2 (even board width) fields at the center must remain empty.
   ```md
+```bash
   X X X X X
   X X X X X
   X X - O O
   O O O O O
   O O O O O
-  ```
+```
   ```md
+```bash
   X X X X X X
   X X X X X X
   X X - - O O
   O O O O O O
   O O O O O O
-  ```
+```
+
 - Players move turn by turn and one pawn per turn.
 - Pawns may move by:
   - moving 1 field in any direction including diagonally, if this field is unoccupied.
