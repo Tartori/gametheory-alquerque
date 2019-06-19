@@ -17,12 +17,10 @@ There are two board games that can be played:
 
 ### Pawn Chess ("Bauernschach")
 
-#### Game Rules
-
 - The game is a simplification of Chess such that there are only the pawns and no other figures.
 - Play happens on a square board of 4 to 8 fields in width and height respectively.
 - Initially each player has as many pawns as the board is wide, placed in the second row closest to him.
-  ```md
+  ```bash
   - - - - -
   X X X X X
   - - - - -
@@ -39,48 +37,7 @@ There are two board games that can be played:
   - stepping left or right 1 field, if this field is occupied by the opponent and the occupying pawn has moved once. (en passant) The opponent's pawn is killed.
 - The game is won by the player who manages first to get a pawn to the last row on the opposite of the board.
 
-#### Strategies
-
-There are various strategies available to choose the best move:
-- Random
-- Simple heuristic
-- Complex heuristic
-- Monte Carlo
-
-##### Random Choice
-
-##### Simple Heuristic
-
-Search is performed by Alpha-Beta-Pruning at a deepness of 4.
-
-##### Complex Heuristic
-
-Search is performed by Alpha-Beta-Pruning at a deepness of 4.
-
-The heuristic evaluation function is based on various considerations:
-- Total pawns:
-  - The more pawns one has compared to the number of pawns the opponent has, the better.
-- Position of one pawn relative to the game board:
-  - The further advanced a pawn, the better.
-  - A pawn that has an unblocked path to the finish line
-    - is great.
-    - is less great, if there is an opponent's pawn in a neighbouring line up ahead and thus could kill our pawn.
-- Position of one pawn relative to our and opponent's other pawns:
-  - A pawn is strong if ...
-    - he can kill another pawn now
-    - without being killed in the next move
-    - without another being killed in the next move
-  - A pawn is safe if ...
-    - he cannot be killed in the next move
-    - he can be killed in the next move but the killer himself can be killed in the move after. (both players loose 1 pawn each)
-
-##### Monte Carlo
-
-Search is performed by Alpha-Beta-Pruning at a deepness of 4.
-
 ### Alquerque ("Original Checkers" / "Urdame")
-
-#### Game Rules (according to Mr. Eckerle)
 
 - The game is a simplification of the various versions of Checkers played today.
 - Play happens on a square board of 4 to 8 fields in width and height respectively.
@@ -108,9 +65,48 @@ Search is performed by Alpha-Beta-Pruning at a deepness of 4.
   - either because he has no more pawns
   - or because he has no possible moves, that is he is blocked.
 
-#### Strategy
+## AI Behavior
 
-Time did not allow for any better strategies for playing Alquerque than for a machine that chooses its moves randomly (as in Pawn Chess).
+There are various strategies available to choose the best move:
+- Random
+- Simple heuristic
+- Complex heuristic
+- Monte Carlo
+
+All of them are implemented for Pawn Chess. Only random choice and Monte Carlo are implemented for Alquerque.
+
+### Random Choice
+
+### Simple Heuristic (only Pawn Chess)
+
+Search is performed by Alpha-Beta-Pruning at a deepness of 4.
+
+
+
+### Complex Heuristic (only Pawn Chess)
+
+Search is performed by Alpha-Beta-Pruning at a deepness of 4.
+
+The heuristic evaluation function is based on various considerations:
+- Total pawns:
+  - The more pawns one has compared to the number of pawns the opponent has, the better.
+- Position of one pawn relative to the game board:
+  - The further advanced a pawn, the better.
+  - A pawn that has an unblocked path to the finish line
+    - is great.
+    - is less great, if there is an opponent's pawn in a neighbouring line up ahead and thus could kill our pawn.
+- Position of one pawn relative to our and opponent's other pawns:
+  - A pawn is strong if ...
+    - he can kill another pawn now
+    - without being killed in the next move
+    - without another being killed in the next move
+  - A pawn is safe if ...
+    - he cannot be killed in the next move
+    - he can be killed in the next move but the killer himself can be killed in the move after. (both players loose 1 pawn each)
+
+##### Monte Carlo
+
+Search is performed by Alpha-Beta-Pruning at a deepness of 4.
 
 ## App Architecture
 
