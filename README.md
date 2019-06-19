@@ -20,14 +20,15 @@ There are two board games that can be played:
 - The game is a simplification of Chess such that there are only the pawns and no other figures.
 - Play happens on a square board of 4 to 8 fields in width and height respectively.
 - Initially each player has as many pawns as the board is wide, placed in the second row closest to him.
-  ```bash
-  - - - - -
-  X X X X X
-  - - - - -
-  - - - - -
-  O O O O O
-  - - - - -
-  ```
+
+```bash
+- - - - -
+X X X X X
+- - - - -
+- - - - -
+O O O O O
+- - - - -
+```
 
 - Players move turn by turn and one pawn per turn.
 - Pawns may move by:
@@ -42,13 +43,15 @@ There are two board games that can be played:
 - The game is a simplification of the various versions of Checkers played today.
 - Play happens on a square board of 4 to 8 fields in width and height respectively.
 - Initially each player has as many pawns as half the number of fields on the board, while 1 (uneven board width) or 2 (even board width) fields at the center must remain empty.
+
   ```bash
     X X X X X
     X X X X X
     X X - O O
     O O O O O
     O O O O O
-    ```
+  ```
+
   ```bash
     X X X X X X
     X X X X X X
@@ -68,6 +71,7 @@ There are two board games that can be played:
 ## AI Behavior
 
 There are various strategies available to choose the best move:
+
 - Random
 - Simple heuristic
 - Complex heuristic
@@ -82,12 +86,12 @@ All of them are implemented for Pawn Chess. Only random choice and Monte Carlo a
 Search is performed by Alpha-Beta-Pruning at a deepness of 4.
 
 
-
 ### Complex Heuristic (only Pawn Chess)
 
 Search is performed by Alpha-Beta-Pruning at a deepness of 4.
 
 The heuristic evaluation function is based on various considerations:
+
 - Total pawns:
   - The more pawns one has compared to the number of pawns the opponent has, the better.
 - Position of one pawn relative to the game board:
@@ -104,7 +108,7 @@ The heuristic evaluation function is based on various considerations:
     - he cannot be killed in the next move
     - he can be killed in the next move but the killer himself can be killed in the move after. (both players loose 1 pawn each)
 
-##### Monte Carlo
+#### Monte Carlo
 
 Search is performed by Alpha-Beta-Pruning at a deepness of 4.
 
@@ -115,8 +119,6 @@ Search is performed by Alpha-Beta-Pruning at a deepness of 4.
 ### GUI & User Interaction
 
 ### Actors taking turns and playing
-
-### Strategy
 
 ## App usage
 
@@ -144,7 +146,9 @@ Search is performed by Alpha-Beta-Pruning at a deepness of 4.
   ```
 
 ## Critical Reflection
+
 ### Challenges
+
 - It is hard to make a clever machine player due to various reasons, foremost:
   - The game tree expands fast. Thus it is a balance between having the user to wait a long time for the machine opponent to be ready on one side and a deep game tree on the other.
   - "Designed" heuristics, in contrast to Monte Carlo, require the developers to find and optimize a proper evaluation function either by thinking and trial and error or by analysing vast amounts of data gathered. Due to the lack of data, we had to accomodate with ideas based trial and error.
