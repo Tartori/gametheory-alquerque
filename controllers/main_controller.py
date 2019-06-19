@@ -3,7 +3,7 @@ from copy import deepcopy
 
 # from controllers import BaseController, HumanActor, MachineRandomActor
 from controllers import BaseController, HumanActor, MachineRandomActor, \
-    MachineCleverActor
+    MachineCleverActor, MachineSimpleHeuristicActor, MachineComplexHeuristicActor
 from models import State, CurrentGame, Commands, Games, MachineStrategies, \
     Player, ScreenParameters, States
 from games import Bauernschach, Alquerque
@@ -149,10 +149,21 @@ class MainController(BaseController):
         """
         params = self._prepare_values_to_be_rendered()
         params.instruction = "What strategy shall the machine use?"
-        params.options.update({
-            Commands.CHOOSE_MACHINE_STRATEGY_RANDOM: "Random",
-            Commands.CHOOSE_MACHINE_STRATEGY_CLEVER: "Clever"
-        })
+        if self._state.game.engine_choice == Games.ALQUERQUE:
+            params.options.update({
+                Commands.CHOOSE_MACHINE_STRATEGY_RANDOM: "Random",
+                Commands.CHOOSE_MACHINE_STRATEGY_CLEVER: "Monte Carlo",
+                Commands.CHOOSE_MACHINE_STRATEGY_SIMPLE_HEURISTIC: "Simple Heuristic"
+            })
+        elif self._state.game.engine_choice == Games.BAUERNSCHACH:
+            params.options.update({
+                Commands.CHOOSE_MACHINE_STRATEGY_RANDOM: "Random",
+                Commands.CHOOSE_MACHINE_STRATEGY_CLEVER: "Monte Carlo",
+                Commands.CHOOSE_MACHINE_STRATEGY_SIMPLE_HEURISTIC: "Simple Heuristic",
+                Commands.CHOOSE_MACHINE_STRATEGY_COMPLEX_HEURISTIC: "Complex Heuristic"
+            })
+        else:
+            raise Exception("No game chosen.")
         self._gui.print_screen(params)
 
         input = self._read_input()
@@ -166,7 +177,17 @@ class MainController(BaseController):
             elif input == Commands.CHOOSE_MACHINE_STRATEGY_CLEVER:
                 self._state.game.machine = MachineStrategies.CLEVER
                 self._state.activity = States.CHOOSE_PLAYER_ORDER
-                self._state.feedback = "You have chosen the clever acting opp."
+                self._state.feedback = "You have chosen the opp with Monte Carlo heuristic."
+
+            elif input == Commands.CHOOSE_MACHINE_STRATEGY_SIMPLE_HEURISTIC:
+                self._state.game.machine = MachineStrategies.SIMPLE_HEURISTIC
+                self._state.activity = States.CHOOSE_PLAYER_ORDER
+                self._state.feedback = "You have chosen the opp with a simple heuristic."
+
+            elif input == Commands.CHOOSE_MACHINE_STRATEGY_COMPLEX_HEURISTIC:
+                self._state.game.machine = MachineStrategies.SIMPLE_HEURISTIC
+                self._state.activity = States.CHOOSE_PLAYER_ORDER
+                self._state.feedback = "You have chosen the opp with a complex heuristic."
 
     def __do_step_choose_player_order(self):
         """
@@ -214,7 +235,13 @@ class MainController(BaseController):
                 "Machine Opp (Random)", self._state, Player.OPP)
         elif self._state.game.machine == MachineStrategies.CLEVER:
             player_opp = MachineCleverActor(
-                "Machine Opp (Clever)", self._state, Player.OPP)
+                "Machine Opp (Monte Carlo)", self._state, Player.OPP)
+        elif self._state.game.machine == MachineStrategies.SIMPLE_HEURISTIC:
+            player_opp = MachineSimpleHeuristicActor(
+                "Machine Opp (Simple Heuristic)", self._state, Player.OPP)
+        elif self._state.game.machine == MachineStrategies.SIMPLE_HEURISTIC:
+            player_opp = MachineComplexHeuristicActor(
+                "Machine Opp (Complex Heuristic)", self._state, Player.OPP)
         else:
             raise Exception("No opponent defined.")
 
