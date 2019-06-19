@@ -49,3 +49,10 @@ class MachineABPruningActor(BaseMachineActor):
 
     def _get_heuristic(self, game):
         raise NotImplementedError("Abstract method.")
+
+    def _get_fields_delta(self, board, current_player):
+        """
+        Sums up the value (either 1 or -1) of all pawns on the game board.
+        Returns the value
+        """
+        return sum([sum(x) for x in board]) * current_player
