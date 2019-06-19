@@ -38,7 +38,7 @@ class MachineABPruningActor(BaseMachineActor):
                 if movegame.get_winner() is not None:
                     return 1000000, pawn, move
                 (opp, _, _) = self.__find_best_solution_rec(
-                    depth-1, movegame, alpha)
+                    depth - 1, movegame, alpha)
                 sol = -opp
                 if(sol < alpha):
                     break
