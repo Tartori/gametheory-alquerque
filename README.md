@@ -92,13 +92,14 @@ Search is performed by Alpha-Beta-Pruning at a deepness of 4.
 The heuristic evaluation function is based on various considerations:
 
 - Total pawns:
-  - The more pawns one has compared to the number of pawns the opponent has, the better.
+  - The more pawns one has compared to the number of pawns the opponent has, the better. _(implemented)_
 - Position of one pawn relative to the game board:
-  - The further advanced a pawn, the better.
+  - The further advanced a pawn, the better. _(implemented)_
   - A pawn that has an unblocked path to the finish line
-    - is great.
-    - is less great, if there is an opponent's pawn in a neighbouring line up ahead and thus could kill our pawn.
+    - is great. _(implemented)_
+    - is less great, if there is an opponent's pawn in a neighbouring line up ahead and thus could kill our pawn. _(not implemented)_
 - Position of one pawn relative to our and opponent's other pawns:
+  _(not implemented since this is covered by the possible moves in the next level in the game tree and the count of pawns)_
   - A pawn is strong if ...
     - he can kill another pawn now
     - without being killed in the next move
