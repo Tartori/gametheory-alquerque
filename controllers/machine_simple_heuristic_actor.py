@@ -13,5 +13,5 @@ class MachineSimpleHeuristicActor(MachineABPruningActor):
     def __init__(self, name: str, state, playerId):
         super().__init__(name, state, playerId)
 
-        return sum([sum(x) for x in game.get_bord()]) * game._current_player
     def _get_heuristic(self, game):
+        return self._get_fields_delta(game.get_bord(), game._current_player)
