@@ -19,8 +19,8 @@ class MachineABPruningActor(BaseMachineActor):
         Implements the strategy of choosing the best move.
         Sets the properties _selected_pawn and _selected_move.
         """
-        (_, self._selected_pawn, self._selected_move) = self.__find_best_solution_rec(
-            4, deepcopy(self._state.game.engine))
+        (_, self._selected_pawn, self._selected_move) = \
+            self.__find_best_solution_rec(4, deepcopy(self._state.game.engine))
 
     def __find_best_solution_rec(self, depth, game, alpha=-100):
         """
