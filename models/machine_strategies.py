@@ -8,3 +8,4 @@ class MachineStrategies:
     RANDOM = 0
     CLEVER = 1
     SIMPLE_HEURISTIC = 2
+    COMPLEX_HEURISTIC = 3

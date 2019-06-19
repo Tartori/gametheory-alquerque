@@ -85,14 +85,14 @@ Search is performed by Alpha-Beta-Pruning at a deepness of 4.
 - The game is a simplification of the various versions of Checkers played today.
 - Play happens on a square board of 4 to 8 fields in width and height respectively.
 - Initially each player has as many pawns as half the number of fields on the board, while 1 (uneven board width) or 2 (even board width) fields at the center must remain empty.
-  ```md
+  ```bash
     X X X X X
     X X X X X
     X X - O O
     O O O O O
     O O O O O
     ```
-  ```md
+  ```bash
     X X X X X X
     X X X X X X
     X X - - O O
@@ -137,7 +137,7 @@ Time did not allow for any better strategies for playing Alquerque than for a ma
 
 - Note that on the board, you as a user are placed on the bottom side while the opponent is placed on the top side.
 
-  ```md
+  ```bash
   opponent (human or machine)
   X X X X X X
   X X X X X X

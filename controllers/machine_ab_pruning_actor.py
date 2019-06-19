@@ -6,8 +6,9 @@ from copy import deepcopy
 
 class MachineABPruningActor(BaseMachineActor):
     """
-    This controller takes over during a game play when its the turn
-    of a machine player that follows the MachineStrategies.CLEVER.
+    This controller ist the base for all actions of a machine player
+    where the machine player uses alpha beta pruning for traversing
+    the game tree.
     """
 
     def __init__(self, name: str, state, playerId):

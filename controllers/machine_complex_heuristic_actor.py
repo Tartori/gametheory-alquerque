@@ -5,7 +5,7 @@ from controllers import MachineABPruningActor
 class MachineComplexHeuristicActor(MachineABPruningActor):
     """
     This controller takes over during a game play when its the turn
-    of a machine player that follows the MachineStrategies.CLEVER.
+    of a machine player that follows the MachineStrategies.COMPLEX_HEURISTIC.
     """
 
     def __init__(self, name: str, state, playerId):

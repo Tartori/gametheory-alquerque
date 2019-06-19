@@ -7,7 +7,7 @@ from copy import deepcopy
 class MachineSimpleHeuristicActor(BaseMachineActor):
     """
     This controller takes over during a game play when its the turn
-    of a machine player that follows the MachineStrategies.CLEVER.
+    of a machine player that follows the MachineStrategies.SIMPLE_HEURISTIC.
     """
 
     def __init__(self, name: str, state, playerId):
