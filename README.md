@@ -22,12 +22,12 @@ There are two board games that can be played:
 - Initially each player has as many pawns as the board is wide, placed in the second row closest to him.
 
 ```bash
-- - - - -
-X X X X X
-- - - - -
-- - - - -
-O O O O O
-- - - - -
+  - - - - -
+  X X X X X
+  - - - - -
+  - - - - -
+  O O O O O
+  - - - - -
 ```
 
 - Players move turn by turn and one pawn per turn.
@@ -41,29 +41,21 @@ O O O O O
 ### Alquerque ("Original Checkers" / "Urdame")
 
 - The game is a simplification of the various versions of Checkers played today.
-- Play happens on a square board of 4 to 8 fields in width and height respectively.
-- Initially each player has as many pawns as half the number of fields on the board, while 1 (uneven board width) or 2 (even board width) fields at the center must remain empty.
+- Play happens on a square board of 3 to 7 fields in width and height respectively. The board has to be odd.
+- Initially the board is filled from the top left and bottom right corner to the middle until the pieces meet in the middle. This field is left empty to enable the first move.
 
-  ```bash
-    X X X X X
-    X X X X X
-    X X - O O
-    O O O O O
-    O O O O O
-  ```
-
-  ```bash
-    X X X X X X
-    X X X X X X
-    X X - - O O
-    O O O O O O
-    O O O O O O
-    ```
+```bash
+  X X X X X
+  X X X X X
+  X X - O O
+  O O O O O
+  O O O O O
+```
 
 - Players move turn by turn and one pawn per turn.
 - Pawns may move by:
   - moving 1 field in any direction including diagonally, if this field is unoccupied.
-  - moving 2 fields in any one direction including diagonally, if the first field is occupied by the opponent and the second field is unoccupied. The opponent's pawn on the first field is killed.
+  - moving 2 fields in any one direction including diagonally, if the first field is occupied by the opponent and the second field is unoccupied. The opponent's pawn on the first field is killed. This way
 - The game is won by the player who's opponent cannot move:
   - either because he has no more pawns
   - or because he has no possible moves, that is he is blocked.
@@ -77,13 +69,17 @@ There are various strategies available to choose the best move:
 - Complex heuristic
 - Monte Carlo
 
-All of them are implemented for Pawn Chess. Only random choice and Monte Carlo are implemented for Alquerque.
+All of them are implemented for Pawn Chess. Only random choice, Monte Carlo and the simple heuristics are implemented for Alquerque.
+
+No matter which heuristics is chosen, should the depth be enough to win the game, this path will always return a number that is higher than all of the generated numbers by any heuristic.
 
 ### Random Choice
 
+The random choice AI takes a random move for a random pawn. This way it moves in unpredictable behaviour but will most likely loose.
+
 ### Simple Heuristic (only Pawn Chess)
 
-Search is performed by Alpha-Beta-Pruning at a deepness of 4.
+Search is performed by Alpha-Beta-Pruning at a deepness of 4. After the depth has been reached the pawns of the player are compared to the pawns of the oponent. The player simply optimizes for most pawns.
 
 ### Complex Heuristic (only Pawn Chess)
 
@@ -98,18 +94,10 @@ The heuristic evaluation function is based on various considerations:
   - A pawn that has an unblocked path to the finish line
     - is great.
     - is less great, if there is an opponent's pawn in a neighbouring line up ahead and thus could kill our pawn.
-- Position of one pawn relative to our and opponent's other pawns:
-  - A pawn is strong if ...
-    - he can kill another pawn now
-    - without being killed in the next move
-    - without another being killed in the next move
-  - A pawn is safe if ...
-    - he cannot be killed in the next move
-    - he can be killed in the next move but the killer himself can be killed in the move after. (both players loose 1 pawn each)
 
 #### Monte Carlo
 
-Search is performed by Alpha-Beta-Pruning at a deepness of 4.
+Search is performed by Alpha-Beta-Pruning at a deepness of 4. After that each path is extended by one more level and from there the ai finishes the game with choosing random moves for each player. The heuristics then takes all the won games. This way the leafs can be compared by seeing how many random paths were won. To increase the quality of the heuristics it would be better to play games to the end multiple times from each leaf. We decided against that because of preformance issues.
 
 ## App Architecture
 
@@ -134,7 +122,7 @@ Search is performed by Alpha-Beta-Pruning at a deepness of 4.
 
 - Note that on the board, you as a user are placed on the bottom side while the opponent is placed on the top side.
 
-  ```bash
+```bash
   opponent (human or machine)
   X X X X X X
   X X X X X X
@@ -142,7 +130,7 @@ Search is performed by Alpha-Beta-Pruning at a deepness of 4.
   O O O O O O
   O O O O O O
   user (human)
-  ```
+```
 
 ## Critical Reflection
 
