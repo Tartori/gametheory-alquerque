@@ -71,15 +71,15 @@ There are various strategies available to choose the best move:
 
 All of them are implemented for Pawn Chess. Only random choice, Monte Carlo and the simple heuristics are implemented for Alquerque.
 
-No matter which heuristics is chosen, should the depth be enough to win the game, this path will always return a number that is higher than all of the generated numbers by any heuristic.
+No matter which heuristics is chosen, should the depth be enough to win the game, this path always returns a number that is higher than all of the generated numbers by any heuristic.
 
 ### Random Choice
 
-The random choice AI takes a random move for a random pawn. This way it moves in unpredictable behaviour but will most likely loose.
+The random choice AI takes a random move for a random pawn. This way, it moves in unpredictable behavior but will most likely lose.
 
 ### Simple Heuristic (only Pawn Chess)
 
-Search is performed by Alpha-Beta-Pruning at a deepness of 4. After the depth has been reached the pawns of the player are compared to the pawns of the oponent. The player simply optimizes for most pawns.
+Alpha-Beta-Pruning is performed at a deepness of 4. After the depth has been reached the pawns of the player are compared to the pawns of the opponent. The player optimizes for most pawns.
 
 ### Complex Heuristic (only Pawn Chess)
 
@@ -97,7 +97,7 @@ The heuristic evaluation function is based on various considerations:
 
 #### Monte Carlo
 
-Search is performed by Alpha-Beta-Pruning at a depth of 4. After that each path is extended by one more level and from there the ai finishes the game with choosing random moves for each player. The heuristics then takes all the won games. This way the leafs can be compared by seeing how many random paths were won. To increase the quality of the heuristics it would be better to play games to the end multiple times from each leaf. We decided against that because of preformance issues.
+Alpha-Beta-Pruning search is performed at a depth of 4. After that, each path is extended by one more level, and from there the ai finishes the game by choosing random moves for each player. The heuristics then takes all the won games. This way, the leaves can be compared by seeing how many random paths were won. To increase the quality of the heuristics, it would be better to play games to the end multiple times from each leaf. We decided against that because of performance issues.
 
 ## App Architecture
 
