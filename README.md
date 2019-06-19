@@ -85,7 +85,6 @@ All of them are implemented for Pawn Chess. Only random choice and Monte Carlo a
 
 Search is performed by Alpha-Beta-Pruning at a deepness of 4.
 
-
 ### Complex Heuristic (only Pawn Chess)
 
 Search is performed by Alpha-Beta-Pruning at a deepness of 4.
