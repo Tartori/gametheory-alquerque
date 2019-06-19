@@ -97,7 +97,7 @@ The heuristic evaluation function is based on various considerations:
 
 #### Monte Carlo
 
-Search is performed by Alpha-Beta-Pruning at a deepness of 4. After that each path is extended by one more level and from there the ai finishes the game with choosing random moves for each player. The heuristics then takes all the won games. This way the leafs can be compared by seeing how many random paths were won. To increase the quality of the heuristics it would be better to play games to the end multiple times from each leaf. We decided against that because of preformance issues.
+Search is performed by Alpha-Beta-Pruning at a depth of 4. After that each path is extended by one more level and from there the ai finishes the game with choosing random moves for each player. The heuristics then takes all the won games. This way the leafs can be compared by seeing how many random paths were won. To increase the quality of the heuristics it would be better to play games to the end multiple times from each leaf. We decided against that because of preformance issues.
 
 ## App Architecture
 
