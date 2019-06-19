@@ -1,10 +1,10 @@
 #!/usr/bin/python3
-from controllers import BaseMachineActor
+from controllers import MachineABPruningActor
 from random import random, choice
 from copy import deepcopy
 
 
-class MachineSimpleHeuristicActor(BaseMachineActor):
+class MachineSimpleHeuristicActor(MachineABPruningActor):
     """
     This controller takes over during a game play when its the turn
     of a machine player that follows the MachineStrategies.SIMPLE_HEURISTIC.
