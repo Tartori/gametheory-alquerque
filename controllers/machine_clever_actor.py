@@ -13,7 +13,7 @@ class MachineCleverActor(MachineABPruningActor):
     def __init__(self, name: str, state, playerId):
         super().__init__(name, state, playerId)
 
-    def __get_heuristic(self, game):
+    def _get_heuristic(self, game):
         wins = 0
         for pawn in game.get_movable_pawns():
             for move in game.get_moves_for_pawn(pawn):

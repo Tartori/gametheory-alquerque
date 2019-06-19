@@ -27,7 +27,7 @@ class MachineABPruningActor(BaseMachineActor):
         """
 
         if depth == 0:
-            return (self.__get_heuristic(game), None, None)
+            return (self._get_heuristic(game), None, None)
 
         alphapawn, alphamove = None, None
         for pawn in game.get_movable_pawns():
@@ -47,5 +47,5 @@ class MachineABPruningActor(BaseMachineActor):
                 alpha = sol
         return alpha, alphapawn, alphamove
 
-    def __get_heuristic(self, game):
+    def _get_heuristic(self, game):
         raise NotImplementedError("Abstract method.")

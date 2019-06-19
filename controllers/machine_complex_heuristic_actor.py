@@ -11,6 +11,6 @@ class MachineComplexHeuristicActor(MachineABPruningActor):
     def __init__(self, name: str, state, playerId):
         super().__init__(name, state, playerId)
 
-    def __get_heuristic(self, game):
+    def _get_heuristic(self, game):
         # TODO: implement heuristic!!!
         pass
