@@ -77,7 +77,7 @@ No matter which heuristics is chosen, should the depth be enough to win the game
 
 The random choice AI takes a random move for a random pawn. This way, it moves in unpredictable behavior but will most likely lose.
 
-### Simple Heuristic (only Pawn Chess)
+### Simple Heuristic
 
 Alpha-Beta-Pruning is performed at a deepness of 4. After the depth has been reached the pawns of the player are compared to the pawns of the opponent. The player optimizes for most pawns.
 
