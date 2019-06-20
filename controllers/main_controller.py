@@ -185,7 +185,7 @@ class MainController(BaseController):
                 self._state.feedback = "You have chosen the opp with a simple heuristic."
 
             elif input == Commands.CHOOSE_MACHINE_STRATEGY_COMPLEX_HEURISTIC:
-                self._state.game.machine = MachineStrategies.SIMPLE_HEURISTIC
+                self._state.game.machine = MachineStrategies.COMPLEX_HEURISTIC
                 self._state.activity = States.CHOOSE_PLAYER_ORDER
                 self._state.feedback = "You have chosen the opp with a complex heuristic."
 
@@ -239,7 +239,7 @@ class MainController(BaseController):
         elif self._state.game.machine == MachineStrategies.SIMPLE_HEURISTIC:
             player_opp = MachineSimpleHeuristicActor(
                 "Machine Opp (Simple Heuristic)", self._state, Player.OPP)
-        elif self._state.game.machine == MachineStrategies.SIMPLE_HEURISTIC:
+        elif self._state.game.machine == MachineStrategies.COMPLEX_HEURISTIC:
             player_opp = MachineComplexHeuristicActor(
                 "Machine Opp (Complex Heuristic)", self._state, Player.OPP)
         else:

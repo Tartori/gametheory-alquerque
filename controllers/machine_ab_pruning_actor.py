@@ -19,15 +19,15 @@ class MachineABPruningActor(BaseMachineActor):
         Implements the strategy of choosing the best move.
         Sets the properties _selected_pawn and _selected_move.
         """
-        (_, self._selected_pawn, self._selected_move) = self.__find_best_solution_rec(
-            4, deepcopy(self._state.game.engine))
+        (_, self._selected_pawn, self._selected_move) = \
+            self.__find_best_solution_rec(4, deepcopy(self._state.game.engine))
 
     def __find_best_solution_rec(self, depth, game, alpha=-100):
         """
         """
 
         if depth == 0:
-            return (self.__get_heuristic(game), None, None)
+            return (self._get_heuristic(game), None, None)
 
         alphapawn, alphamove = None, None
         for pawn in game.get_movable_pawns():
@@ -36,9 +36,9 @@ class MachineABPruningActor(BaseMachineActor):
                 movegame.do_move(pawn, move)
                 movegame.to_next_turn()
                 if movegame.get_winner() is not None:
-                    return 100, pawn, move
+                    return 1000000, pawn, move
                 (opp, _, _) = self.__find_best_solution_rec(
-                    depth-1, movegame, alpha)
+                    depth - 1, movegame, alpha)
                 sol = -opp
                 if(sol < alpha):
                     break
@@ -47,5 +47,22 @@ class MachineABPruningActor(BaseMachineActor):
                 alpha = sol
         return alpha, alphapawn, alphamove
 
-    def __get_heuristic(self, game):
+    def _get_heuristic(self, game):
         raise NotImplementedError("Abstract method.")
+
+    def _get_fields_delta(self, board, current_player):
+        """Sums up the values of all game board fields.
+
+        Note that Player.USER values are positive and Player.OPP values
+        are negative. However, this adjusts this for the current player,
+        i.e. gives a positive value if the current constellation is in
+        favour of the current player.
+
+        Arguments:
+            board {list of integer} -- game board
+            current_player {integer} -- -1 or 1 for current player
+
+        Returns:
+            integer -- indicates the player's "preference" for the board
+        """
+        return sum([sum(x) for x in board]) * current_player

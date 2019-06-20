@@ -1,10 +1,10 @@
 #!/usr/bin/python3
-from controllers import BaseMachineActor
+from controllers import MachineABPruningActor
 from random import random, choice
 from copy import deepcopy
 
 
-class MachineSimpleHeuristicActor(BaseMachineActor):
+class MachineSimpleHeuristicActor(MachineABPruningActor):
     """
     This controller takes over during a game play when its the turn
     of a machine player that follows the MachineStrategies.SIMPLE_HEURISTIC.
@@ -13,5 +13,5 @@ class MachineSimpleHeuristicActor(BaseMachineActor):
     def __init__(self, name: str, state, playerId):
         super().__init__(name, state, playerId)
 
-    def __get_heuristic(self, game):
-        return sum([sum(x) for x in game.get_bord()]) * game._current_player
+    def _get_heuristic(self, game):
+        return self._get_fields_delta(game.get_bord(), game._current_player)
