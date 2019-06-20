@@ -14,8 +14,6 @@ class MachineComplexHeuristicActor(MachineABPruningActor):
         super().__init__(name, state, playerId)
 
     def _get_heuristic(self, game):
-        # TODO: implement heuristic!!!
-
         # The more pawns one has compared to the number of pawns
         # the opponent has, the better.
         count_delta = self._get_fields_delta(game._get_bord(),
