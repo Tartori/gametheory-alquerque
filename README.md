@@ -124,28 +124,47 @@ Alpha-Beta-Pruning search is performed at a depth of 4. After that, each path is
 
 ## App Architecture
 
+### Overall Architecture
+
+The application is based on the idea of MVC. Code is grouped in modules accordingly. The models just represend enumerables or data transfer objects. The view is responsible for rendering to the console.
+
+Quite a few classes inherit from "abstract" parents in order to share code and provide different implementations.
+
+### User and Machine Actors
+
+All action, be it by the user or by a machine player, is contained in controllers. Where a controller provides human interaction it contains a loop working its way through a simple state machine. Each user input leads to a new state being set. A new state being set leads to new calculations or user prompts.
+
+Note that there is also a "state" as known in frontend architecture. It contains the current data of the application, e.g. user choices and the current game.
+
 ### Game Engines
 
-### GUI & User Interaction
+The game logic itself is to be found in the module "games". It has no dependencies on controllers or the gui and is therefore relatively loosely coupled. The engines get instantiated and called by controllers only and provide methods to interact with. Foremost, they contain the board, representing the current state of the game, and are the only one to manipulate the board.
 
-### Actors taking turns and playing
+### Machine Actors and Strategies
+
+Since choosing the next move is a behaviour of the actor in the game and them being represented by controllers, the implementations of the strategies are to be found there too.
 
 ## App usage
 
 ### Running the application
 
-- The app is built with Python version 3.7.
-- Start by running the app.py in this same directory.
-- No command line parameters are to be passed.
+The app is built with Python version 3.7.
+
+Start by running the app.py in this same directory. No command line parameters are to be passed.
 
 ### User Interaction
 
-- As a user, interact with the app by entering one of the commands shown at each step.
-- You may abort the current game or the app as a whole at each step.
+As a user, interact with the app by entering one of the commands shown at each step.
+
+You may abort the current game or the app as a whole at each step.
 
 ### Gameplay
 
-- Note that on the board, you as a user are placed on the bottom side while the opponent is placed on the top side.
+The application will guide you through the game.
+
+Note that:
+
+- On the board, you as a user are placed on the bottom side while the opponent is placed on the top side.
 
 ```bash
   opponent (human or machine)
@@ -158,9 +177,11 @@ Alpha-Beta-Pruning search is performed at a depth of 4. After that, each path is
 ```
 
 - The user is always a human player.
-- The opponent however can either be a human player or a machine player with a strategy. You will be promted to specify which strategy.
+- A human player is presented first with a list of pawns that can be moved and, after selecting a pawn, with the moves it can take. Those moves are also hinted on the board as `?`.
+- The opponent can either be a human player or a machine player with a strategy. You will be promted to specify which strategy.
 - The history of steps in the gameplay is listed. This hints what a machine opponent has done.
-- Please be patient for the machine player to asses its best move. The calculation is rather time consuming.
+
+Please be patient for the machine player to asses its best move. The calculation is rather time consuming.
 
 ## Critical Reflection
 
