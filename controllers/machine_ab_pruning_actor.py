@@ -51,8 +51,18 @@ class MachineABPruningActor(BaseMachineActor):
         raise NotImplementedError("Abstract method.")
 
     def _get_fields_delta(self, board, current_player):
-        """
-        Sums up the value (either 1 or -1) of all pawns on the game board.
-        Returns the value
+        """Sums up the values of all game board fields.
+
+        Note that Player.USER values are positive and Player.OPP values
+        are negative. However, this adjusts this for the current player,
+        i.e. gives a positive value if the current constellation is in
+        favour of the current player.
+
+        Arguments:
+            board {list of integer} -- game board
+            current_player {integer} -- -1 or 1 for current player
+
+        Returns:
+            integer -- indicates the player's "preference" for the board
         """
         return sum([sum(x) for x in board]) * current_player
