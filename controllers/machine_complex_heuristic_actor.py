@@ -29,10 +29,10 @@ class MachineComplexHeuristicActor(MachineABPruningActor):
                     # best row is at the "bottom" of the board
                     # -1 to prevent the first move to always be two steps.
                     # squared weight
-                    adv_board[r][c] *= (r - 1)**2
+                    adv_board[r][c] *= (r - 1) * (r - 1)
                 elif adv_board[r][c] == Player.USER:
                     # best row is at the "top" of the board
-                    adv_board[r][c] *= (size - 1 - r - 1)**2
+                    adv_board[r][c] *= (size - 1 - r - 1) * (size - 1 - r - 1)
 
         adv_delta = self._get_fields_delta(adv_board, game._current_player)
 
