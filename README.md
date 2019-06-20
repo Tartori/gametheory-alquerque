@@ -1,6 +1,6 @@
 # Board Games with some Game Theory Cleverness
 
-Julian Stampfli, Marc Rey, 2019.
+Julian Stampfli, Marc Rey, 2019. Link: <https://github.com/Tartori/gametheory-alquerque>
 
 ## Context
 
