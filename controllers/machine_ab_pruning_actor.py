@@ -34,9 +34,9 @@ class MachineABPruningActor(BaseMachineActor):
             for move in game.get_moves_for_pawn(pawn):
                 movegame = deepcopy(game)
                 movegame.do_move(pawn, move)
-                movegame.to_next_turn()
                 if movegame.get_winner() is not None:
                     return 1000000, pawn, move
+                movegame.to_next_turn()
                 (opp, _, _) = self.__find_best_solution_rec(
                     depth - 1, movegame, alpha)
                 sol = -opp

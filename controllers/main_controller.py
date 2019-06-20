@@ -60,8 +60,8 @@ class MainController(BaseController):
                 elif self._state.activity == States.BYE:
                     self.__do_step_bye()
                     break
-            except:
-                pass
+            except Exception as e:
+                print(e)
 
     def __do_step_choose_game(self):
         """
