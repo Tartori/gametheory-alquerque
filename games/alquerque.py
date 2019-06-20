@@ -1,6 +1,7 @@
 #!/usr/bin/python3
-from models import Player
+from models import Player, FieldValue
 from games.board_game import BoardGame
+from math import floor
 
 
 class Alquerque(BoardGame):
@@ -19,12 +20,18 @@ class Alquerque(BoardGame):
         """
         if(self._size < self._MINIMUM_BOARD_SIZE):
             self._size = self._MINIMUM_BOARD_SIZE
-        # https://stackoverflow.com/questions/9459337/assign-value-to-an-individual-cell-in-a-two-dimensional-python-array
-        self._board = [
-            [0 for col in range(self._size)] for row in range(self._size)]
-        self._board[1] = [Player.OPP for col in range(self._size)]
-        self._board[self._size - 2] = \
-            [Player.USER for col in range(self._size)]
+
+        mid_index = floor(self._size / 2)
+        self._board = [[Player.OPP for col in range(self._size)]
+                       for row in range(mid_index)]
+        middle_row = [Player.OPP for col in range(mid_index)]
+        middle_row.extend([FieldValue.EMPTY])
+        middle_row.extend([Player.USER for col in range(mid_index)])
+        self._board.extend([middle_row])
+        self._board.extend(
+            [[Player.USER for col in range(self._size)]
+             for row in range(mid_index)]
+        )
 
     def _find_all_moves(self):
         """
