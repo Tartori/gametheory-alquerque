@@ -26,38 +26,42 @@ class MachineComplexHeuristicActor(MachineABPruningActor):
         adv_board = deepcopy(board)
         top_field_value = [0] * size
         btm_field_value = [0] * size
+        usr_now_blocked = [False] * size
+        opp_now_blocked = [False] * size
 
         for r in range(size):
             for c in range(size):
-                if adv_board[r][c] == Player.OPP:
+                # row indices for both perspectives.
+                r_opp = r
+                r_usr = size - 1 - r
+
+                opp_blocked = False
+                usr_blocked = False
+
+                for preview in range(0, size):
+                    if not usr_blocked and preview < r and board[r][c] == Player.OPP:
+                        usr_blocked = True
+                    elif not opp_blocked and preview > r and board[r][c] == Player.USR:
+                        opp_blocked = True
+
+                if adv_board[r_opp][c] == Player.OPP:
                     # best row is at the "bottom" of the board
                     # -1 to prevent the first move to always be two steps.
                     # squared weight
-                    adv_board[r][c] *= (r - 1) * (r - 1)
+                    adv_board[r_opp][c] *= (r_opp - 1) * (r_opp - 1)
 
-                    if top_field_value[c] == 0:
-                        top_field_value[c] = Player.OPP
-                    btm_field_value[c] = Player.OPP
+                    if not opp_blocked:
+                        adv_board[r_opp][c] *= 10  # TODO: choose best weight
+
                 elif adv_board[r][c] == Player.USER:
                     # best row is at the "top" of the board
                     adv_board[r][c] *= (size - 1 - r - 1) * (size - 1 - r - 1)
 
-                    if top_field_value[c] == 0:
-                        top_field_value[c] == Player.USER
-                    btm_field_value[c] = Player.USER
+                    if not usr_blocked:
+                        adv_board[r_usr][c] *= 10  # TODO: choose best weight
 
         adv_delta = self._get_fields_delta(adv_board, player)
 
         # A pawn that has an unblocked path to the finish line is great
-        count_free_cols_usr = 0
-        count_free_cols_opp = 0
-        for p in top_field_value:
-            if p == Player.USER:
-                count_free_cols_usr += Player.USER
-        for p in btm_field_value:
-            if p == Player.OPP:
-                count_free_cols_opp += Player.OPP
 
-        free_row_delta = (count_free_cols_opp + count_free_cols_usr) * 10
-
-        return adv_delta + count_delta + free_row_delta
+        return adv_delta + count_delta
