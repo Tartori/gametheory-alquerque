@@ -69,6 +69,7 @@ class BoardGame:
         self.moveHistory.append((deepcopy(pawn), deepcopy(move)))
         self._board[pawn[0]][pawn[1]] = 0
         self._board[move[0]][move[1]] = self._current_player
+        self._handle_kill(pawn, move);
         self._check_for_winner()
 
     def undo_move(self, mv):
@@ -79,6 +80,12 @@ class BoardGame:
         Checks if there has been a winner found.
         """
         return self._winner is not None
+
+    def _handle_kill(self, pawn, move):
+        """
+        Removes killed pawns.
+        """
+        raise NotImplementedError("Override in child class.")
 
     def _check_for_winner(self):
         """

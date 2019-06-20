@@ -177,6 +177,14 @@ class Bauernschach(BoardGame):
             return False
         return True
 
+    def _handle_kill(self, pawn, move):
+        """
+        Removes killed pawns.
+        """
+        # Since a pawn can only kill another pawn that is on the target field,
+        # The killed pawn gets overridden by assigning the pawn to this filed.
+        pass
+
     def _check_for_winner(self):
         """
         Checks if the current player has just won the game.

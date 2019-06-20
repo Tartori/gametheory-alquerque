@@ -55,7 +55,7 @@ There are two board games that can be played:
 - Players move turn by turn and one pawn per turn.
 - Pawns may move by:
   - moving 1 field in any direction including diagonally, if this field is unoccupied.
-  - moving 2 fields in any one direction including diagonally, if the first field is occupied by the opponent and the second field is unoccupied. The opponent's pawn on the first field is killed. This way
+  - moving 2 fields in any one direction including diagonally, if the first field is occupied by the opponent and the second field is unoccupied. The opponent's pawn on the first field is killed.
 - The game is won by the player who's opponent cannot move:
   - either because he has no more pawns
   - or because he has no possible moves, that is he is blocked.

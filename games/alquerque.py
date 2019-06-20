@@ -184,6 +184,21 @@ class Alquerque(BoardGame):
             return False
         return True
 
+    def _handle_kill(self, pawn, move):
+        """
+        Removes killed pawns.
+        """
+        vector_x = move[0] - pawn[0]
+        vector_y = move[1] - pawn[1]
+        if abs(vector_x) == 2 or abs(vector_y) == 2:
+            kill_x = pawn[0]
+            if abs(vector_x) > 0:
+                kill_x += int(vector_x / abs(vector_x))
+            kill_y = pawn[1]
+            if abs(vector_y) > 0:
+                kill_y += int(vector_y / abs(vector_y))
+            self._board[kill_x][kill_y] = FieldValue.EMPTY
+
     def _check_for_winner(self):
         """
         Checks if the current player has just won the game.
