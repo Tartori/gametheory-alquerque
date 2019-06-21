@@ -97,13 +97,19 @@ class MainController(BaseController):
         """
         params = self._prepare_values_to_be_rendered()
         params.instruction = "Choose the size of the game board!"
-        params.options.update({
-            "4": "4x4",
-            "5": "5x5",
-            "6": "6x6",
-            "7": "7x7",
-            "8": "8x8"
-        })
+        if self._state.game.engine_choice == Games.ALQUERQUE:
+            params.options.update({
+                "5": "5x5",
+                "7": "7x7"
+            })
+        elif self._state.game.engine_choice == Games.BAUERNSCHACH:
+            params.options.update({
+                "4": "4x4",
+                "5": "5x5",
+                "6": "6x6",
+                "7": "7x7",
+                "8": "8x8"
+            })
         self._gui.print_screen(params)
 
         input = self._read_input()

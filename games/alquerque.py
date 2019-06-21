@@ -1,6 +1,7 @@
 #!/usr/bin/python3
-from models import Player
+from models import Player, FieldValue
 from games.board_game import BoardGame
+from math import floor
 
 
 class Alquerque(BoardGame):
@@ -19,12 +20,18 @@ class Alquerque(BoardGame):
         """
         if(self._size < self._MINIMUM_BOARD_SIZE):
             self._size = self._MINIMUM_BOARD_SIZE
-        # https://stackoverflow.com/questions/9459337/assign-value-to-an-individual-cell-in-a-two-dimensional-python-array
-        self._board = [
-            [0 for col in range(self._size)] for row in range(self._size)]
-        self._board[1] = [Player.OPP for col in range(self._size)]
-        self._board[self._size - 2] = \
-            [Player.USER for col in range(self._size)]
+
+        mid_index = floor(self._size / 2)
+        self._board = [[Player.OPP for col in range(self._size)]
+                       for row in range(mid_index)]
+        middle_row = [Player.OPP for col in range(mid_index)]
+        middle_row.extend([FieldValue.EMPTY])
+        middle_row.extend([Player.USER for col in range(mid_index)])
+        self._board.extend([middle_row])
+        self._board.extend(
+            [[Player.USER for col in range(self._size)]
+             for row in range(mid_index)]
+        )
 
     def _find_all_moves(self):
         """
@@ -176,6 +183,21 @@ class Alquerque(BoardGame):
         if self._field_occupied(targetField):
             return False
         return True
+
+    def _handle_kill(self, pawn, move):
+        """
+        Removes killed pawns.
+        """
+        vector_x = move[0] - pawn[0]
+        vector_y = move[1] - pawn[1]
+        if abs(vector_x) == 2 or abs(vector_y) == 2:
+            kill_x = pawn[0]
+            if abs(vector_x) > 0:
+                kill_x += int(vector_x / abs(vector_x))
+            kill_y = pawn[1]
+            if abs(vector_y) > 0:
+                kill_y += int(vector_y / abs(vector_y))
+            self._board[kill_x][kill_y] = FieldValue.EMPTY
 
     def _check_for_winner(self):
         """
